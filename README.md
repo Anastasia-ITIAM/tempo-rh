@@ -46,8 +46,7 @@ docker compose up -d
 make install
 make mapper-install
 
-# Base de données et données de démo
-make db
+# Base de données (créée automatiquement par Docker) et données de démo
 make migrate
 docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 ```
