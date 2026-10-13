@@ -5,18 +5,72 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 24px 16px;
+    box-sizing: border-box;
     overflow: hidden;
 
 }
 
 .login-page::before {
-    width: 190%;
     opacity: 0.6;
     content: "";
     position: absolute;
     inset: 0;
+    pointer-events: none;
     background:
         radial-gradient(circle at 20% 30%, rgba(255, 68, 149, 0.55), transparent 45%),
         radial-gradient(circle at 75% 70%, rgba(147, 68, 163, 0.6), transparent 50%);
+}
+
+/* Cards on auth pages: size to content, no distortion */
+.login-container,
+.login-container-reset-password,
+.login-container-check-email,
+.login-container-reset {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 480px;
+    height: auto !important;
+    transform: none !important;
+    z-index: 1;
+}
+
+.login-container-check-email p {
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .login-page {
+        align-items: flex-start;
+        padding: 16px 12px;
+    }
+
+    .login-container,
+    .login-container-reset-password,
+    .login-container-check-email,
+    .login-container-reset {
+        padding: 36px 22px !important;
+        border-radius: 20px;
+    }
+
+    .login-logo img,
+    .login-logo-reset img,
+    .login-logo-reset-password {
+        max-width: 90px !important;
+        margin-bottom: 28px !important;
+    }
+
+    .login-container-reset-password h3,
+    .login-container-check-email h3,
+    .login-container-reset h3 {
+        font-size: 1.35rem;
+        margin-bottom: 20px;
+    }
+
+    .login-container-check-email p {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
 }
