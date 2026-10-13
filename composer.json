@@ -87,7 +87,6 @@
       "auto-scripts": {
         "assets:install %PUBLIC_DIR%": "symfony-cmd",
         "importmap:install": "symfony-cmd",
-        "asset-map:compile": "symfony-cmd",
         "cache:clear": "symfony-cmd"
       },
       "post-install-cmd": [
