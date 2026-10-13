@@ -1,0 +1,32 @@
+{% extends 'notification/base.html.twig' %}
+
+{% block title %}Demande de congé créée{% endblock %}
+
+{% block body %}
+<div class="email-wrapper">
+    <div class="email-content">
+
+        <div class="login-logo">
+            <img src="{{ absolute_url(asset('images/logo.png')) }}" alt="TempoRH">
+        </div>
+
+        <h2>Votre demande de congé a été créée</h2>
+
+        <p>
+            Bonjour <span class="highlight">{{ employeeName }}</span>,<br><br>
+            Votre demande de congé a été enregistrée par l’administrateur et est actuellement en attente de traitement.
+        </p>
+
+        <p>
+            Vous pouvez consulter les détails en vous connectant à votre espace personnel :
+            <br>
+            <a href="{{ absolute_url(path('app_login')) }}">Portail ERP.</a>
+        </p>
+
+        <div class="footer">
+            &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+        </div>
+
+    </div>
+</div>
+{% endblock %}

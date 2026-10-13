@@ -1,0 +1,248 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block head_javascript %}
+    {{ importmap(['app', 'admin_timesheet_week_detail', 'admin_week_detail_timesheet_css']) }}
+{% endblock %}
+
+{% block content_title %}
+    Détail - Semaine du {{ timesheetWeek.startDate|date('d/m/Y') }}
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+
+    <!-- Actions -->
+    <div class="mb-4 text-end">
+        <a href="{{ path('admin_timesheet_dashboard') }}" class="btn btn-secondary">
+            ← Retour
+        </a>
+        {% if timesheetWeek.status.value == 'soumis' %}
+            {% set approveTotal = 0 %}
+            {% for entry in timesheetWeek.timeSheetEntries %}
+                {% set approveTotal = approveTotal + entry.hours %}
+            {% endfor %}
+            <button onclick="prepareApproveDetail({{ timesheetWeek.id }}, '{{ timesheetWeek.user.firstName }} {{ timesheetWeek.user.lastName }}', '{{ timesheetWeek.startDate|date('d/m/Y') }}', '{{ approveTotal|number_format(2, ',', ' ') }}h')"
+                    class="btn btn-success">
+                Valider
+            </button>
+        {% endif %}
+        {% if timesheetWeek.status.value == 'soumis' %}
+            <button onclick="prepareRejectDetail({{ timesheetWeek.id }})" class="btn btn-danger">
+                Rejeter
+            </button>
+        {% endif %}
+    </div>
+
+    <!-- En-tête + Historique -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Informations générales</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Utilisateur:</strong> {{ timesheetWeek.user.firstName }} {{ timesheetWeek.user.lastName }}</p>
+                    <p><strong>Semaine du:</strong> {{ timesheetWeek.startDate|date('d/m/Y') }}</p>
+                    <p class="mb-0">
+                        <strong>Statut:</strong>
+                        <span class="badge badge-{{ timesheetWeek.status.name|lower }}">
+                            {{ timesheetWeek.status.label() }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            {% if timesheetWeek.history|length > 0 %}
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5>Historique</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 260px; overflow-y: auto;">
+                        <ul class="history-list">
+                            {% for entry in timesheetWeek.history %}
+                                <li class="history-entry">
+                                    <div class="history-entry-header">
+                                        <span class="badge badge-{{ entry.status.name|lower }}">{{ entry.status.label() }}</span>                                        <span class="history-entry-meta">
+                                        par <strong>{{ entry.actionBy.firstName }} {{ entry.actionBy.lastName }}</strong>
+                                        le {{ entry.createdAt|date('d/m/Y à H:i') }}
+                                    </span>
+                                    </div>
+                                    {% if entry.comment %}
+                                        <div class="history-entry-comment">{{ entry.comment }}</div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tableau des entrées -->
+    <div class="card mb-4">
+        {% set totalHours = 0 %}
+        {% for entry in timesheetWeek.timeSheetEntries %}
+            {% set totalHours = totalHours + entry.hours %}
+        {% endfor %}
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Entrées de temps</h5>
+            <span class="week-total-bar">Total de la semaine : <strong>{{ totalHours|number_format(2, ',', ' ') }}h</strong></span>
+        </div>
+        <div class="card-body">
+            {% set dayFullNames = {1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi', 7: 'Dimanche'} %}
+            <table class="table table-striped entries-table">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Projet</th>
+                    <th>Tâche</th>
+                    <th class="text-right">Heures</th>
+                    <th>Commentaire</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if timesheetWeek.timeSheetEntries|length > 0 %}
+                    {% for entry in timesheetWeek.timeSheetEntries %}
+                        <tr>
+                            <td><strong>{{ dayFullNames[entry.date|date('N')] }} {{ entry.date|date('d/m/Y') }}</strong></td>
+                            <td>
+                                {% if entry.client %}
+                                    {{ entry.client.name }}
+                                    {% if entry.client.deletedAt %}<span class="badge bg-secondary ms-1">Supprimé</span>{% endif %}
+                                {% else %}
+                                    <span class="text-muted">(client supprimé)</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.project %}
+                                    {{ entry.project.name }}
+                                    {% if entry.project.deletedAt %}<span class="badge bg-secondary ms-1">Supprimé</span>{% endif %}
+                                {% else %}
+                                    <span class="text-muted">(projet supprimé)</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.task %}
+                                    {{ entry.task.name }}
+                                    {% if entry.task.deletedAt %}<span class="badge bg-secondary ms-1">Supprimée</span>{% endif %}
+                                {% else %}
+                                    <span class="text-muted">(tâche supprimée)</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-right"><strong>{{ entry.hours|number_format(2, ',', ' ') }}h</strong></td>
+                            <td>{{ entry.comment ?: '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Aucune entrée de temps</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+            {% if timesheetWeek.timeSheetEntries|length > 0 %}
+                {% set weekDays = [] %}
+                {% for i in 0..6 %}
+                    {% set weekDays = weekDays|merge([timesheetWeek.startDate|date_modify('+' ~ i ~ ' day')]) %}
+                {% endfor %}
+
+                <h6 class="mt-4">Total par jour</h6>
+                <table class="table table-sm table-bordered text-center mb-0">
+                    <thead>
+                    <tr>
+                        {% for day in weekDays %}
+                            <th>{{ dayFullNames[day|date('N')] }}<br><span class="text-muted" style="font-weight: normal;">{{ day|date('d/m') }}</span></th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for day in weekDays %}
+                            {% set dateKey = day|date('Y-m-d') %}
+                            {% set dayTotal = 0 %}
+                            {% for entry in timesheetWeek.timeSheetEntries %}
+                                {% if entry.date|date('Y-m-d') == dateKey %}
+                                    {% set dayTotal = dayTotal + entry.hours %}
+                                {% endif %}
+                            {% endfor %}
+                            <td><strong>{{ dayTotal|number_format(2, ',', ' ') }}h</strong></td>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="7" class="week-total-footer">
+                            Total de la semaine : <strong>{{ totalHours|number_format(2, ',', ' ') }}h</strong>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container mt-4">
+
+    <!-- Actions -->
+    <div class="mb-4 text-end">
+        <a href="{{ path('admin_timesheet_dashboard') }}" class="btn btn-secondary">
+            ← Retour
+        </a>
+        {% if timesheetWeek.status.value == 'soumis' %}
+            {% set approveTotal = 0 %}
+            {% for entry in timesheetWeek.timeSheetEntries %}
+                {% set approveTotal = approveTotal + entry.hours %}
+            {% endfor %}
+            <button onclick="prepareApproveDetail({{ timesheetWeek.id }}, '{{ timesheetWeek.user.firstName }} {{ timesheetWeek.user.lastName }}', '{{ timesheetWeek.startDate|date('d/m/Y') }}', '{{ approveTotal|number_format(2, ',', ' ') }}h')" class="btn btn-success">
+                Valider
+            </button>
+        {% endif %}
+        {% if timesheetWeek.status.value == 'soumis' %}
+            <button onclick="prepareRejectDetail({{ timesheetWeek.id }})" class="btn btn-danger">
+                Rejeter
+            </button>
+        {% endif %}
+    </div>
+
+    {# ========== MODALES ========== #}
+
+    {# Modal Approuver #}
+    <div id="approveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Approuver cette feuille ?</h3>
+            </div>
+            <div class="modal-body">
+                <div id="approveSummary"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('approveModal')">Annuler</button>
+                <button class="btn btn-success" id="confirmApproveBtnDetail" onclick="confirmApproveDetail()">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    {# Modal Rejeter #}
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rejeter cette feuille ?</h3>
+            </div>
+            <div class="modal-body">
+                <label for="rejectReason" class="form-label"></label>
+                <textarea id="rejectReason" class="form-control" rows="5" required
+                          placeholder="Raison du rejet..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('rejectModal')">Annuler</button>
+                <button class="btn btn-danger" id="confirmRejectBtnDetail" onclick="confirmRejectDetail()">Rejeter</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

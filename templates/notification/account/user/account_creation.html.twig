@@ -1,0 +1,40 @@
+{% extends 'notification/base.html.twig' %}
+
+{% block title %}Nouvel compte a été créé{% endblock %}
+
+{% block body %}
+<div class="email-wrapper">
+    <div class="email-content">
+
+        <div class="login-logo">
+            <img src="{{ absolute_url(asset('images/logo.png')) }}" alt="TempoRH">
+        </div>
+
+        <h2>Votre compte a été créé</h2>
+
+        <p>
+            Bonjour <span class="highlight">{{ employeeName }}</span>, votre compte a été créé par l’administrateur.
+        </p>
+
+        {% if userEmail is not empty %}
+            <p>Votre adresse email : <span class="highlight">{{ userEmail }}</span></p>
+        {% endif %}
+
+        <p>
+            Pour définir votre mot de passe, rendez-vous sur le
+            <a href="{{ absolute_url(path('app_login')) }}">Portail ERP</a>
+            Vous arriverez sur la page de connexion : cliquez sur
+            <strong>« Mot de passe oublié ? »</strong> et suivez les instructions afin de créer votre propre mot de passe.
+        </p>
+
+        <p>
+            Nous vous recommandons d’utiliser l’adresse email indiquée ci-dessus pour effectuer cette opération.
+        </p>
+
+        <div class="footer">
+            &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+        </div>
+
+    </div>
+</div>
+{% endblock %}

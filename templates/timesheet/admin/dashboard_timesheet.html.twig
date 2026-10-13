@@ -1,0 +1,140 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+  {% block head_javascript %}
+      {{ importmap(['app', 'admin_timesheet_dashboard', 'admin_dashboard_timesheet_css']) }}
+  {% endblock %}
+
+{% block content_title %}Approbation des Timesheets{% endblock %}
+
+{% block main %}
+    <div class="timesheet-dashboard">
+        {# FILTRES #}
+        <div class="filters-card">
+            <h2>Filtrer</h2>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="dateFrom">Du</label>
+                    <input type="date" id="dateFrom" value="{{ dateFrom }}" data-default="{{ dateFrom }}" class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <label for="dateTo">Au</label>
+                    <input type="date" id="dateTo" value="{{ dateTo }}" data-default="{{ dateTo }}" class="form-control">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterUser">Utilisateur</label>
+                    <select id="filterUser" class="form-control">
+                        <option value="">-- Tous --</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.firstName }} {{ user.lastName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterStatus">Statut</label>
+                    <select id="filterStatus" class="form-control">
+                        <option value="">-- Tous --</option>
+                        {% for status in statuses %}
+                            <option value="{{ status.value }}">
+                                {{ status.label() }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterClient">Clients</label>
+                    <select id="filterClient" class="form-control">
+                        <option value="">-- Tous --</option>
+                        {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+
+                <div class="filter-actions">
+                    <button id="filterBtn" class="btn btn-secondary">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+                    <button id="resetBtn" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                    <a href="#" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# TABLEAU #}
+        <div class="table-card">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Période</th>
+                    <th>Statut</th>
+                    <th>Heures</th>
+                    <th>Clients</th>
+                    <th>Soumise le</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="timesheetsBody">
+                <tr class="empty-row">
+                    <td colspan="7" class="text-center">Chargement...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {# PAGINATION #}
+        <div class="pagination-bar">
+            <button id="prevPage" class="btn btn-sm btn-outline">← Précédent</button>
+            <span id="pageInfo">1 - 10 de 0</span>
+            <button id="nextPage" class="btn btn-sm btn-outline">Suivant →</button>
+        </div>
+    </div>
+
+    {# MODALES #}
+
+
+    {# Modal Approuver #}
+    <div id="approveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Valider cette feuille ?</h3>
+            </div>
+            <div class="modal-body">
+                <p id="approveSummary"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('approveModal')">Annuler</button>
+                <button class="btn btn-secondary  btn-success" id="confirmApproveBtn">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    {# Modal Rejeter #}
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rejeter cette feuille ?</h3>
+            </div>
+            <div class="modal-body">
+                <label for="rejectReason" class="form-label"></label>
+                <textarea id="rejectReason" class="form-control" rows="5" required
+                          placeholder="Raison du rejet..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('rejectModal')">Annuler</button>
+                <button class="btn btn-secondary  btn-danger" id="confirmRejectBtn">Rejeter</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

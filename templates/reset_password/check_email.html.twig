@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}E-mail de réinitialisation envoyé{% endblock %}
+
+{% block importmap %}
+    {{ importmap(['app', 'check_email', 'bootstrap_entry']) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="login-page">
+        <div class="login-container-check-email">
+            <div class="login-logo">
+                <img src="{{ asset('images/logo.png') }}" alt="TempoRH">
+            </div>
+
+            <h3>E-mail envoyé</h3>
+
+            <p>
+                Si un compte correspondant à votre adresse e-mail existe, un e-mail vient d’être envoyé avec un lien pour réinitialiser votre mot de passe.
+                Ce lien expirera dans <strong>{{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}</strong>.
+            </p>
+
+            <p>
+                Si vous ne recevez pas l’e-mail, vérifiez votre dossier spam ou <a class="btn-link" href="{{ path('app_forgot_password_request') }}">réessayez</a>
+            </p>
+            <div class="forgot-password">
+                <a href="{{ path('app_login') }}">Retour à la connexion</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

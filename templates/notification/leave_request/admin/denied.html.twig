@@ -1,0 +1,26 @@
+{% extends 'notification/base.html.twig' %}
+
+{% block title %}Demande de congé refusée{% endblock %}
+
+{% block body %}
+<div class="email-wrapper">
+    <div class="email-content">
+
+        <div class="login-logo">
+            <img src="{{ absolute_url(asset('images/logo.png')) }}"
+                 alt="TempoRH" width="150">
+        </div>
+
+        <h2>La demande de congé a été refusée</h2>
+
+        <p>
+            La demande de congé de <span class="highlight">{{ employee }}</span> a été refusée.
+        </p>
+
+        <div class="footer">
+            &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+        </div>
+
+    </div>
+</div>
+{% endblock %}

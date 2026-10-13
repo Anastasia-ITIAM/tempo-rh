@@ -1,0 +1,242 @@
+* {
+    box-sizing: border-box;
+}
+
+.timesheet-dashboard {
+    padding: 20px;
+    background: var(--color-bg-light);
+}
+
+/* CARDS */
+.filters-card, .table-card {
+    background: var(--color-white);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 6px color-mix(in srgb, var(--color-grey) 25%, transparent);
+}
+
+.filters-card h2 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+/* FILTRES */
+.filter-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    outline: none;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    color: var(--color-grey);
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: var(--color-border);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* TABLEAU */
+.table-card {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.table thead {
+    background: var(--color-white);
+    border-bottom: 2px solid var(--color-bg-light);
+}
+
+.table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--color-black);
+}
+
+.table td {
+    padding: 12px;
+    border-bottom: 2px solid var(--color-bg-light);
+    font-size: 13px;
+}
+
+.empty-row {
+    color: var(--color-grey);
+}
+
+/* PAGINATION */
+.pagination-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--color-white);
+    border-radius: 4px;
+}
+
+#pageInfo {
+    font-size: 14px;
+    color: var(--color-grey);
+    min-width: 150px;
+    text-align: center;
+}
+
+/* MODALES */
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-overlay);}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--color-white);
+    border-radius: 4px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    font-size: 16px;
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--color-bg-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.approve-summary-box {
+    padding: 12px;
+    border-radius: 3px;
+    border: 1px solid var(--color-success-timesheet);
+}
+
+#rejectReason:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: var(--color-border);
+}
+
+.modal-footer {
+    padding: 8px 20px;
+    border-bottom: 2px solid var(--color-bg-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* FLASH MESSAGES */
+.flash-alert {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+}
+
+.flash-close {
+    background: none;
+    border: none;
+    padding: 0 4px;
+    margin-left: 16px;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    color: inherit;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.flash-close:focus {
+    outline: none;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        min-width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .table th, .table td {
+        padding: 8px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .detail-header {
+        grid-template-columns: 1fr;
+    }
+}

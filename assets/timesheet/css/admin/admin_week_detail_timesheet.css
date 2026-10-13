@@ -1,0 +1,124 @@
+/* Modals*/
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-overlay);}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--color-white);
+    border-radius: 4px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    font-size: 16px;
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--color-bg-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.approve-summary-box {
+    padding: 12px;
+    border-radius: 3px;
+    border: 1px solid var(--color-success-timesheet);
+}
+
+#rejectReason:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: var(--color-border);
+}
+
+.modal-footer {
+    padding: 8px 20px;
+    border-bottom: 2px solid var(--color-bg-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Historique */
+.history-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.history-entry {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.history-entry:last-child {
+    border-bottom: none;
+}
+
+.history-entry-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.history-entry-meta {
+    font-size: 13px;
+    color: var(--color-grey);
+}
+
+.history-entry-comment {
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--color-black);
+    padding-left: 2px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Tableau des heures */
+.table.entries-table {
+    --bs-table-bg: var(--color-white);
+    --bs-table-striped-bg: var(--color-white);
+    --bs-table-accent-bg: var(--color-white);
+}
+
+.week-total-bar {
+    background: var(--color-white);
+    color: var(--color-black);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.table .week-total-footer {
+    background-color: var(--color-bg-light);
+    color: var(--color-black);
+    text-align: center;
+    padding: 8px 10px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}

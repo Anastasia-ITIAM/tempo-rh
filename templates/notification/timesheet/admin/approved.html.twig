@@ -1,0 +1,32 @@
+{% extends 'notification/base.html.twig' %}
+
+{% block title %}La feuille de temps validée{% endblock %}
+
+{% block body %}
+    <div class="email-wrapper">
+        <div class="email-content">
+
+            <div class="login-logo">
+                <img src="{{ absolute_url(asset('images/logo.png')) }}"
+                     alt="TempoRH" width="150">
+            </div>
+
+            <h2>La feuille de temps a été validée</h2>
+
+            <p>
+                La feuille de temps de <span class="highlight">{{ employee }}</span> a été validée.
+            </p>
+
+            <p>
+                Vous pouvez consulter les détails dans l’interface d’administration :
+                <br>
+                <a href="{{ absolute_url(path('app_login')) }}">Portail ERP</a>
+            </p>
+
+            <div class="footer">
+                &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

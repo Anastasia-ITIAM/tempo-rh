@@ -1,0 +1,48 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block head_javascript %}
+    {{ importmap('app') }}
+{% endblock %}
+
+{% block main %}
+
+    <div class="d-flex justify-content-center">
+        <div class="col-12 col-md-6">
+
+            <h3 class="text-center mb-4">
+                {{ form.vars.title }}
+            </h3>
+
+            {{ form_start(form) }}
+
+            <div class="mb-3">
+                <div class="mb-3 form-text fs-6">
+                    {{ form_help(form.comment) }}
+                </div>
+                {{ form_widget(form.comment, {
+                    attr: {
+                        class: 'form-control',
+                        rows: 4,
+                    },
+                }) }}
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ backUrl }}" class="btn btn-secondary">
+                    Retour
+                </a>
+
+                <button type="submit" class="btn btn-{{ form.vars.type }}">
+                    {% if form.vars.icon_type %}
+                        <i class="fa fa-{{ form.vars.icon_type }}"></i>
+                    {% endif %}
+                    {{ form.vars.submit_label }}
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+
+{% endblock %}

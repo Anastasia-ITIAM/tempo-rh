@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}TempoRH{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} flash-message">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+{% block body %}
+{% endblock %}
+
+</body>
+</html>

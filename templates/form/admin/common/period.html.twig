@@ -1,0 +1,27 @@
+{% block period_picker_widget %}
+    <div class="row">
+        <div class="col-6">
+            {{ form_label(form.startedAt) }}
+            {{ form_widget(form.startedAt) }}
+            {{ form_errors(form.startedAt) }}
+        </div>
+        <div class="col-6">
+            {{ form_label(form.startedAtTime) }}
+            {{ form_widget(form.startedAtTime) }}
+            {{ form_errors(form.startedAtTime) }}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-6">
+            {{ form_label(form.endedAt) }}
+            {{ form_widget(form.endedAt) }}
+            {{ form_errors(form.endedAt) }}
+        </div>
+        <div class="col-6">
+            {{ form_label(form.endedAtTime) }}
+            {{ form_widget(form.endedAtTime) }}
+            {{ form_errors(form.endedAtTime) }}
+        </div>
+    </div>
+{% endblock %}

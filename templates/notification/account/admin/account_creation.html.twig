@@ -1,0 +1,29 @@
+{% extends 'notification/base.html.twig' %}
+
+{% block title %}Nouvel utilisateur créé{% endblock %}
+
+{% block body %}
+<div class="email-wrapper">
+    <div class="email-content">
+
+        <div class="login-logo">
+            <img src="{{ absolute_url(asset('images/logo.png')) }}" alt="TempoRH">
+        </div>
+
+        <h2>Un nouvel utilisateur a été créé</h2>
+
+        <p>L’utilisateur <span class="highlight">{{ employee }}</span> a été créé par l’administrateur.</p>
+
+        <p>
+            Vous pouvez consulter les détails dans l’interface d’administration.
+            <br>
+            <a href="{{ absolute_url(path('app_login')) }}">Portail ERP</a>
+        </p>
+
+        <div class="footer">
+            &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+        </div>
+
+    </div>
+</div>
+{% endblock %}

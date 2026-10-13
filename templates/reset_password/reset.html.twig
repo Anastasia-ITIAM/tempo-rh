@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réinitialisez votre mot de passe{% endblock %}
+
+{% block importmap %}
+    {{ importmap(['app', 'new_password', 'bootstrap_entry']) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="login-page">
+        <div class="login-container-reset">
+            <div class="login-logo-reset">
+                <img src="{{ asset('images/logo.png') }}" alt="TempoRH">
+            </div>
+
+            <h3>Réinitialisez votre mot de passe</h3>
+
+            {% for flash_error in app.flashes('reset_password_error') %}
+                <div class="error-message-password">{{ flash_error }}</div>
+            {% endfor %}
+
+            {{ form_start(resetForm) }}
+
+            <div class="form-group text-white">
+                {{ form_label(resetForm.plainPassword.first, 'Nouveau mot de passe') }}
+                <div class="password-wrapper" data-controller="toggle-password">
+                    {{ form_widget(resetForm.plainPassword.first) }}
+
+                    <button type="button"
+                            class="toggle-password-btn"
+                            data-action="click->toggle-password#toggle">
+                        👁
+                    </button>
+                </div>
+                <div>
+                    {{ form_errors(resetForm.plainPassword.first) }}
+                </div>
+
+                {{ form_label(resetForm.plainPassword.second, 'Répétez le mot de passe') }}
+                <div class="password-wrapper" data-controller="toggle-password">
+                    {{ form_widget(resetForm.plainPassword.second) }}
+
+                    <button type="button"
+                            class="toggle-password-btn"
+                            data-action="click->toggle-password#toggle">
+                        👁
+                    </button>
+                </div>                <div>
+                    {{ form_errors(resetForm.plainPassword.second) }}
+                </div>
+
+                <div style="color:#fff;">
+                    {{ form_errors(resetForm.plainPassword) }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login-reset">
+                Réinitialiser le mot de passe
+            </button>
+
+            {{ form_end(resetForm) }}
+
+            <div class="forgot-password">
+                <a href="{{ path('app_login') }}">Retour à la connexion</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

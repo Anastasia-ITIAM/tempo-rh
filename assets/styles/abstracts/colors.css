@@ -1,0 +1,112 @@
+/* Couleurs principales */
+
+@property --color-primary {
+    syntax: "<color>";
+    initial-value: #9344A3;
+    inherits: false;
+}
+
+@property --color-secondary {
+    syntax: "<color>";
+    initial-value: #121328;
+    inherits: false;
+}
+
+@property --color-tertiary {
+    syntax: "<color>";
+    initial-value: #FF4495;
+    inherits: false;
+}
+
+
+@property --color-btn-gradient {
+    syntax: "<image>";
+    initial-value: linear-gradient(135deg, #FF4495, #9344A3);
+    inherits: false;
+}
+
+/*Ombres*/
+@property --color-btn-shadow {
+    syntax: "<color>";
+    initial-value: rgba(147, 68, 163, 0.4);
+    inherits: false;
+}
+
+/* Blanc */
+@property --color-white {
+    syntax: "<color>";
+    initial-value: #fff;
+    inherits: false;
+}
+
+/* Noir */
+@property --color-black {
+    syntax: "<color>";
+    initial-value: #000;
+    inherits: false;
+}
+
+/* Gris */
+@property --color-grey {
+    syntax: "<color>";
+    initial-value: #675e5e;
+    inherits: false;
+}
+
+/*TIMESHEET*/
+
+/* Texte / fond adaptatifs — suivent le thème EasyAdmin (clair/sombre) */
+@property --color-text {
+    syntax: "<color>";
+    initial-value: #000000;
+    inherits: false;
+}
+
+@property --color-bg {
+    syntax: "<color>";
+    initial-value: #ffffff;
+    inherits: false;
+}
+
+/* EasyAdmin pose data-bs-theme="dark" sur <body> en mode sombre
+   (voir assets/bundles/easyadmin/page-color-scheme...js) */
+[data-bs-theme="dark"] {
+    --color-text: #ffffff;
+    --color-bg: #000000;
+}
+
+/* TimeSheet Succès  */
+@property --color-success-timesheet {
+    syntax: "<color>";
+    initial-value: #1ea471;
+    inherits: false;
+}
+
+/* TimeSheet Danger  */
+@property --color-danger-timesheet {
+    syntax: "<color>";
+    initial-value: #dc3545;
+    inherits: false;
+}
+
+/* TimeSheet Modals Overlay  */
+@property --color-overlay {
+    syntax: "<color>";
+    initial-value: rgba(0, 0, 0, 0.5);
+    inherits: false;
+}
+
+
+/* Dashboard Actions  */
+@property --color-border {
+    syntax: "<color>";
+    initial-value: #d1d5db;
+    inherits: true;
+}
+
+@property --color-bg-light {
+    syntax: "<color>";
+    initial-value: #f6f7f9;
+    inherits: true;
+}
+

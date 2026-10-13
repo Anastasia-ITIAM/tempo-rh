@@ -1,0 +1,33 @@
+{% extends 'notification/base.html.twig' %}
+
+{% block title %}Demande d'annulation enregistrée{% endblock %}
+
+{% block body %}
+<div class="email-wrapper">
+    <div class="email-content">
+
+        <div class="login-logo">
+            <img src="{{ absolute_url(asset('images/logo.png')) }}"
+                 alt="TempoRH" width="150">
+        </div>
+
+        <h2>Votre demande d'annulation a été enregistrée</h2>
+
+        <p>
+            Bonjour <span class="highlight">{{ employeeName }}</span>,<br><br>
+            Votre demande d'annulation a bien été prise en compte et est actuellement en attente de traitement.
+        </p>
+
+        <p>
+            Vous pouvez consulter les détails en vous connectant à votre espace personnel :
+            <br>
+            <a href="{{ absolute_url(path('app_login')) }}">Portail ERP.</a>
+        </p>
+
+        <div class="footer">
+            &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+        </div>
+
+    </div>
+</div>
+{% endblock %}

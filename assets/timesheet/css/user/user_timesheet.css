@@ -1,0 +1,100 @@
+/* HEADER */
+.timesheet-container { padding: 20px; }
+.timesheet-header { border-bottom: 1px solid var(--color-border); padding-bottom: 12px; }
+.timesheet-header h2 {margin: 0;color: var(--color-black);font-size: 1.2rem;}
+.week-range { font-size: 0.9rem; }
+
+/* TABLEAU */
+.table-responsive { overflow-x: auto; }
+.timesheet-grid th, .timesheet-grid td { vertical-align: middle; }
+.day-col { width: 9%; }
+
+/* Cascade Client->Project->Task */
+.breadcrumb-entry { display: inline-block; vertical-align: middle; }
+.breadcrumb-sub { padding-left: 12px; font-size: 0.85rem; }
+.breadcrumb-sub-sub { padding-left: 24px; font-size: 0.85rem; }
+
+/* Hours inputs */
+.day-cell-inner { display: flex; align-items: center; gap: 4px; justify-content: center; }
+.hours-input { width: 75px; text-align: center; font-weight: 500; }
+.hours-input:focus {outline: none !important;box-shadow: none !important; border-color: var(--color-primary) !important; }
+.row-total, #grandTotal, .daily-total { font-variant-numeric: tabular-nums; }
+
+/* Modals */
+.comment-modal-overlay,
+.rejection-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-overlay);
+}
+
+.comment-modal-box,
+.rejection-modal-box {
+    background: var(--color-white);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 16px;
+    box-shadow: 0 10px 30px var(--color-grey);
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-modal-header,
+.rejection-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-white);
+}
+
+.comment-modal-body,
+.rejection-modal-body {
+    padding: 16px;
+}
+
+.comment-modal-footer,
+.rejection-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--color-white);
+}
+
+/* Modal Commentaire */
+#commentModalTextarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: var(--color-primary);
+}
+
+/* Modal Historique */
+.history-entry {
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-white);
+    margin-bottom: 10px;
+}
+
+.history-entry-meta {
+    font-size: 0.9rem;
+    color: var(--color-grey);
+}
+
+.history-entry-comment {
+    margin: 8px 0 0;
+    font-size: 0.9rem;
+    color: var(--color-black);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+@media (max-width: 992px) {
+    .timesheet-toolbar { flex-direction: column; align-items: flex-start !important; }
+}

@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block importmap %}
+    {{ importmap(['app', 'export', 'bootstrap_entry']) }}
+{% endblock %}
+
+{% block body %}
+
+    <div class="comment-card-calcul">
+        <h2>Export des demandes de congés</h2>
+
+        {{ form_start(form, {attr: {'data-turbo': 'false', class: 'custom-form'}}) }}
+
+        <div class="form-group text-center" >
+            {{ form_row(form.startDate) }}
+        </div>
+
+        <div class="form-group text-center" >
+            {{ form_row(form.endDate) }}
+        </div>
+
+        <div class="d-flex justify-content-center gap-2">
+            <a href="{{ path('admin_leave_request_index') }}"
+               class="btn btn-retour">
+                Retour
+            </a>
+                <button class="btn btn-calcul">
+                    <i class="fa fa-download"></i> Calculer
+                </button>
+        </div>
+
+        {{ form_end(form) }}
+        {% if leaveRequests is not empty %}
+            <h3 class="mt-4">Résumé</h3>
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Demandeur</th>
+                    <th>Raison</th>
+                    <th>Période</th>
+                    <th>Type de congé</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for leaveRequest in leaveRequests %}
+                    <tr>
+                        <td><strong>{{ leaveRequest.requestedBy.fullName }}</strong></td>
+                        <td>{{ leaveRequest.reason }}</td>
+                        <td>
+                            {{ leaveRequest.period.startedAt|date('d/m/y') }} → {{ leaveRequest.period.endedAt|date('d/m/y') }}
+                        </td>
+                        <td>CP: {{ leaveRequest.cpDays|default('-') }} | RTT: {{ leaveRequest.rtt|default('-') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="text-center" style="width: 50%; margin: 0 auto;">
+                <a href="{{ path('export', {
+                    startDate: form.startDate.vars.value|date('Y-m-d'),
+                    endDate: form.endDate.vars.value|date('Y-m-d'),
+                }) }}" class="btn btn-calcul">
+                    Exporter
+                </a>
+            </div>
+
+        {% endif %}
+    </div>
+{% endblock %}

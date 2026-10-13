@@ -1,0 +1,40 @@
+.comment-card {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px var(--color-btn-shadow);
+    background: var(--color-white);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.comment-card h3 {
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-primary);
+}
+
+.comment-card p {
+    text-align: center;
+    color: var(--color-black);
+    margin-bottom: 25px;
+}
+
+.comment-card textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--color-primary);
+    font-size: 1rem;
+    resize: vertical;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.comment-card textarea:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 4px var(--color-btn-shadow);
+    outline: none;
+}
+

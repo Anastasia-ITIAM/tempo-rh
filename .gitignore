@@ -1,0 +1,32 @@
+/vendor/
+/assets/vendor/
+/.idea
+/.junie
+/.env.local
+/data
+/var/.php_cs.cache
+/var/cache/*
+/var/log/*
+/var/sessions
+/public/build/
+/public/bundles/
+/public/assets/
+/public/upload/
+/public/upload/reports
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###
+
+###> vincentlanglet/twig-cs-fixer ###
+/.twig-cs-fixer.cache
+###< vincentlanglet/twig-cs-fixer ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

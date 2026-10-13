@@ -1,0 +1,105 @@
+.btn-primary {
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--color-primary);
+    background: var(--color-primary)!important;
+    transform: translateY(-2px);
+    border: 1px solid var(--color-primary)!important;
+    outline: none !important;
+}
+
+.btn:focus,
+.btn:focus-visible,
+.btn:active,
+.btn:active:focus,
+.btn.active {
+    outline: none !important;
+    box-shadow: none !important;
+    --bs-btn-focus-box-shadow: none;
+}
+
+.form-control:focus,
+.form-control:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/*==== TIMESHEET ======*/
+
+/*USER TIMESHEET*/
+.add-row-btn,
+.delete-row-btn {
+    width: 26px;
+    height: 26px;
+    justify-content: center;
+    background-color: transparent !important;
+    border: 2px solid var(--color-grey ) !important;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.delete-row-btn {
+    margin-bottom: 10px;
+}
+
+.add-row-btn { color: var(--color-success) !important; }
+.add-row-btn:hover {
+    background-color: var(--color-success) !important;
+    color: var(--color-white) !important;
+    transform: translateY(-2px);
+}
+
+.delete-row-btn { color: var(--color-danger) !important; }
+.delete-row-btn:hover {
+    background-color: var(--color-danger) !important;
+    color: var(--color-white) !important;
+    transform: translateY(-2px);
+}
+
+.add-row-btn:focus,
+.delete-row-btn:focus {
+    outline: none !important;
+}
+
+.comment-btn {
+    color: var(--color-grey);
+    padding: 2px 6px;
+    transition: color 0.2s;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.comment-btn.has-comment,
+.comment-btn:hover {
+    color: var(--color-primary);
+}
+
+/*ADMIN TIMESHEET*/
+
+.action-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-icon-timesheet.view    { color: var(--color-grey); }
+.btn-icon-timesheet.approve { color: var(--color-success); }
+.btn-icon-timesheet.reject  { color: var(--color-danger); }
+
+.btn-icon-timesheet {
+    padding: 6px 10px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-light);
+    border-radius: 8px;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.btn-icon-timesheet:hover {
+    background: var(--color-bg);
+    box-shadow: 0 2px 4px var(--color-white);
+}

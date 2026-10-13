@@ -1,0 +1,12 @@
+.dropdown-menu .dropdown-item {
+    border-radius: 6px;
+    margin: 6px 8px;
+    font-weight: 500;
+}
+.btn.dropdown-toggle::after {
+    display: none !important;
+}
+
+.btn.dropdown-toggle {
+    padding-right: 0.5rem;
+}

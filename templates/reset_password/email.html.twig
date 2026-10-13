@@ -1,0 +1,41 @@
+{% extends '/notification/base.html.twig' %}
+
+{% block title %}Réinitialisation de mot de passe{% endblock %}
+
+{% block body %}
+
+    <div class="email-wrapper">
+        <div class="email-content">
+
+            <div class="login-logo">
+                <img src="{{ absolute_url(asset('images/logo.png')) }}"
+                     alt="TempoRH" width="150">
+            </div>
+
+            <h2>Réinitialisation de votre mot de passe</h2>
+
+            <p>
+                Bonjour <span class="highlight">{{ employeeName }}</span>,<br><br>
+                Pour réinitialiser votre mot de passe, veuillez cliquer sur le lien ci-dessous :
+            </p>
+
+            <p style="text-align:center;">
+                <a href="{{ url('app_reset_password', {token: resetToken.token}) }}"
+                   style="display:inline-block; padding:12px 20px; background: linear-gradient(135deg, #FF4495, #9344A3); color:#fff; text-decoration:none; border-radius:8px;">
+                    Réinitialiser mon mot de passe
+                </a>
+            </p>
+
+            <p>
+                Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+            </p>
+
+            <p>Cordialement,<br>L’équipe TempoRH</p>
+
+            <div class="footer">
+                &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

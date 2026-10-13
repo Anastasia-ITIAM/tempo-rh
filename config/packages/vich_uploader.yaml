@@ -1,0 +1,15 @@
+vich_uploader:
+  db_driver: orm
+
+  metadata:
+    type: attribute
+
+  mappings:
+    report_file:
+      uri_prefix: /upload/reports
+      upload_destination: '%kernel.project_dir%/public/upload/reports'
+      namer: Vich\UploaderBundle\Naming\UniqidNamer
+
+      inject_on_load: false
+      delete_on_update: false
+      delete_on_remove: true

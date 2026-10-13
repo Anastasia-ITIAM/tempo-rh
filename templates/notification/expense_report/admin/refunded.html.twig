@@ -1,0 +1,24 @@
+{% extends 'notification/base.html.twig' %}
+
+{% block title %}Note de frais remboursée{% endblock %}
+
+{% block body %}
+<div class="email-wrapper">
+    <div class="email-content">
+
+        <div class="login-logo">
+            <img src="{{ absolute_url(asset('images/logo.png')) }}"
+                 alt="TempoRH" width="150">
+        </div>
+
+        <h2>La note de frais a été remboursée</h2>
+
+        <p>La note de frais de <span class="highlight">{{ employee }}</span> a été remboursée.</p>
+
+        <div class="footer">
+            &copy; {{ 'now'|date('Y') }} TempoRH. Tous droits réservés.
+        </div>
+
+    </div>
+</div>
+{% endblock %}

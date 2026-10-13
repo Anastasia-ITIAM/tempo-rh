@@ -1,0 +1,281 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block javascripts %}
+    {% block importmap %}
+        {{ importmap(['user_timesheet']) }}
+        {{ importmap(['app', 'user_timesheet_css']) }}
+    {% endblock %}
+{% endblock %}
+
+{% block content_title %}Ma feuille de temps{% endblock %}
+
+{% block content %}
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+
+    {% set status = timesheetWeek.status.name %}
+    {% set isEditable = status == 'DRAFT' or status == 'REJECTED' %}
+    {% set dayFullNames = {1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Samedi', 7: 'Dimanche'} %}
+    {% set dayShortNames = {1: 'Lun', 2: 'Mar', 3: 'Mer', 4: 'Jeu', 5: 'Ven', 6: 'Sam', 7: 'Dim'} %}
+
+    <div class="timesheet-container">
+
+        <!-- Header -->
+        <div class="timesheet-header mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Ma feuille de temps</h2>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    {% set statusBadges = {
+                        'DRAFT':     {'class': 'badge-draft',     'label': 'Brouillon'},
+                        'SUBMITTED': {'class': 'badge-submitted', 'label': 'Soumise'},
+                        'APPROVED':  {'class': 'badge-approved',  'label': 'Validée'},
+                        'REJECTED':  {'class': 'badge-rejected',  'label': 'Rejetée'}
+                    } %}
+
+                    <span class="badge {{ statusBadges[status].class }}">{{ statusBadges[status].label }}</span>
+
+                    {% if timesheetWeek.history|length > 0 %}
+                        <button class="btn btn-secondary" id="rejectionReasonBtn">
+                            Voir historique
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar: navigation + actions -->
+        <div class="timesheet-toolbar mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-secondary" id="prevWeekBtn">
+                    <i class="fa fa-chevron-left"></i> Semaine précédente
+                </button>
+                <span class="week-range px-2">
+                    <strong>{{ dayFullNames[weekStart|date('N')] }} {{ weekStart|date('d/m') }}</strong> au <strong>{{ dayFullNames[weekEnd|date('N')] }} {{ weekEnd|date('d/m') }}</strong>
+                </span>
+                <button class="btn btn-secondary" id="nextWeekBtn">
+                    Semaine suivante <i class="fa fa-chevron-right"></i>
+                </button>
+                <button class="btn btn-secondary" id="todayBtn">
+                    <i class="fa fa-calendar"></i> Aujourd'hui
+                </button>
+            </div>
+
+            <div class="d-flex gap-2">
+                {% if isEditable %}
+                    <button class="btn btn-primary" id="submitBtn">
+                        Soumettre
+                    </button>
+                {% elseif status == 'SUBMITTED' %}
+                    <p>
+                        <i class="fa fa-lock"></i> Feuille soumise (non modifiable)
+                    </p>
+                {% elseif status == 'APPROVED' %}
+                    <p>
+                        <i class="fa fa-check-circle"></i> Feuille validée
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Grille -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 timesheet-grid" id="timesheetTable">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 20%;">
+                            {% if isEditable %}
+                                <button class="btn btn-sm btn-success rounded-circle add-row-btn" id="addRowBtn" title="Ajouter une ligne">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            {% endif %}
+                            Client / Projet / Tâche
+                        </th>
+                        {% for day in weekDays %}
+                            <th class="text-center day-col">
+                                {{ dayShortNames[day|date('N')] }}<br>
+                                <span class="text-muted medium">{{ day|date('d/m') }}</span>
+                            </th>
+                        {% endfor %}
+                        <th class="text-center" style="width: 10%;">Total</th>
+                    </tr>
+                    </thead>
+                    <tbody id="timesheetBody">
+                    {% if groupedRows|length == 0 %}
+                        <tr class="text-center text-muted" id="emptyRow">
+                            <td colspan="{{ weekDays|length + 2 }}" class="py-4">
+                                <i class="fa fa-list fa-2x mb-2 d-block"></i>
+                                Aucune ligne pour cette semaine.
+                                {% if isEditable %}
+                                    <a href="#" id="addFirstRowBtn">Ajouter une ligne</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        {% for row in groupedRows %}
+                            <tr class="timesheet-row"
+                                data-client-id="{{ row.client.id }}"
+                                data-project-id="{{ row.project.id }}"
+                                data-task-id="{{ row.task.id }}"
+                                data-persisted="true">
+                                <td class="row-header">
+                                    {% if isEditable %}
+                                        <button class="btn btn-sm btn-outline-danger rounded-circle delete-row-btn" title="Supprimer cette ligne">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    {% endif %}
+                                    <div class="breadcrumb-entry">
+                                        <strong>
+                                            {{ row.client.name }}
+                                            {% if row.client.deletedAt %}<span class="badge bg-secondary">Supprimé</span>{% endif %}
+                                        </strong>
+                                        <div class="breadcrumb-sub">
+                                            ↳ {{ row.project.name }}
+                                            {% if row.project.deletedAt %}<span class="badge bg-secondary">Supprimé</span>{% endif %}
+                                        </div>
+                                        <div class="breadcrumb-sub-sub">
+                                            ↳ {{ row.task.name }}
+                                            {% if row.task.deletedAt %}<span class="badge bg-secondary">Supprimée</span>{% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                {% for day in weekDays %}
+                                    {% set dateKey = day|date('Y-m-d') %}
+                                    {% set entry = row.entriesByDate[dateKey] ?? null %}
+                                    {% set entryHours = entry ? entry.hours|number_format(1, '.', '') : '' %}
+                                    {% set entryComment = entry ? entry.comment|e('html_attr') : '' %}
+                                    {% set hasComment = entry and entry.comment ? true : false %}
+
+                                    <td class="day-cell text-center">
+                                        {% if isEditable %}
+                                            <div class="day-cell-inner">
+                                                <input type="number"
+                                                       class="form-control form-control-sm hours-input"
+                                                       value="{{ entryHours }}"
+                                                       step="0.5" min="0" max="24"
+                                                       data-date="{{ dateKey }}"
+                                                       data-entry-id="{{ entry ? entry.id : '' }}">
+                                                <button type="button" class="btn btn-sm comment-btn {{ hasComment ? 'has-comment' : '' }}"
+                                                        data-date="{{ dateKey }}"
+                                                        data-comment="{{ entryComment }}"
+                                                        title="Commentaire">
+                                                    <i class="fa fa-comment"></i>
+                                                </button>
+                                            </div>
+                                        {% else %}
+                                            {% if entry %}
+                                                {{ entry.hours|number_format(1, ',', '') }}h
+                                                {% if entry.comment %}
+                                                    <button type="button" class="btn btn-sm comment-btn has-comment comment-readonly"
+                                                            data-date="{{ dateKey }}"
+                                                            data-comment="{{ entryComment }}"
+                                                            title="Commentaire">
+                                                        <i class="fa fa-comment"></i>
+                                                    </button>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td class="text-center fw-bold row-total">{{ row.total|number_format(1, ',', '') }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                    <tfoot>
+                    <tr class="table-light fw-bold">
+                        <td>Total</td>
+                        {% for day in weekDays %}
+                            {% set dateKey = day|date('Y-m-d') %}
+                            <td class="text-center daily-total" data-date="{{ dateKey }}">
+                                {{ (dailyTotals[dateKey] ?? 0)|number_format(1, ',', '') }}
+                            </td>
+                        {% endfor %}
+                        <td class="text-center" id="grandTotal">
+                            {% set grandTotal = 0 %}
+                            {% for row in groupedRows %}
+                                {% set grandTotal = grandTotal + row.total %}
+                            {% endfor %}
+                            {{ grandTotal|number_format(1, ',', '') }}
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Hidden Inputs -->
+        <input type="hidden" id="csrfToken" value="{{ csrf_token('timesheet') }}">
+        <input type="hidden" id="timesheetWeekId" value="{{ timesheetWeek.id }}">
+        <input type="hidden" id="weekStart" value="{{ weekStart|date('Y-m-d') }}">
+        <input type="hidden" id="weekDays" value="{{ weekDays|map(d => d|date('Y-m-d'))|json_encode }}">
+
+        <!-- Data pour les selects dynamiques (clients) -->
+        <script type="application/json" id="clientsData">[
+            {% for client in clients %}
+            {"id": {{ client.id }}, "name": {{ client.name|json_encode|raw }}}{{ not loop.last ? ',' : '' }}
+            {% endfor %}
+            ]</script>
+
+        <!-- Modal commentaire (éditable + lecture seule) -->
+        <div class="comment-modal-overlay" id="commentModalOverlay" style="display:none;">
+            <div class="comment-modal-box">
+                <div class="comment-modal-header">
+                    <h5 class="mb-0">Commentaire</h5>
+                </div>
+                <div class="comment-modal-body">
+                    <!-- Textarea qui sera disabled en mode lecture seule -->
+                    <textarea id="commentModalTextarea" class="form-control" rows="6" placeholder="Ajouter un commentaire..."></textarea>
+                </div>
+                <div class="comment-modal-footer">
+                    <!-- Boutons qui changent selon le mode (éditable/lecture seule) -->
+                    <button type="button" class="btn btn-secondary" id="commentModalCancel">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="commentModalSave">Enregistrer</button>
+                    <!-- Bouton fermer (mode lecture seule uniquement) -->
+                    <button type="button" class="btn btn-secondary" id="commentModalCloseBtn" style="display:none;">Fermer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Historique (validations / rejets) -->
+        <div class="rejection-modal-overlay" id="rejectionModalOverlay" style="display:none;">
+            <div class="rejection-modal-box">
+                <div class="rejection-modal-header">
+                    <h5 class="mb-0">
+                        Historique de la feuille
+                    </h5>
+                </div>
+                <div class="rejection-modal-body">
+                    {% for entry in timesheetWeek.history %}
+                        <div class="history-entry">
+                            <div class="history-entry-header">
+                                <span class="badge {{ statusBadges[entry.status.name].class }}">{{ statusBadges[entry.status.name].label }}</span>
+                                <span class="history-entry-meta">
+                                    par {{ entry.actionBy.fullName }} le {{ entry.createdAt|date('d/m/Y H:i') }}
+                                </span>
+                            </div>
+                            {% if entry.comment %}
+                                <p class="history-entry-comment">{{ entry.comment }}</p>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">Aucun historique pour le moment.</p>
+                    {% endfor %}
+                </div>
+                <div class="rejection-modal-footer">
+                    <button type="button" class="btn btn-secondary" id="rejectionModalCloseBtn">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

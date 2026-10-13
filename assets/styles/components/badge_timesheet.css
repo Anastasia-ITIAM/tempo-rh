@@ -1,0 +1,12 @@
+.badge {
+    border: 0;
+    box-shadow: none;
+    border-radius: 50rem;
+    font-weight: 600;
+    padding: 0.25em 0.65em;
+    font-size: 0.75rem;
+}
+.badge.badge-draft     { background-color: var(--badge-secondary-bg); color: var(--badge-secondary-color); }
+.badge.badge-submitted { background-color: var(--badge-warning-bg);   color: var(--badge-warning-color); }
+.badge.badge-approved  { background-color: var(--badge-success-bg);   color: var(--badge-success-color); }
+.badge.badge-rejected  { background-color: var(--badge-danger-bg);    color: var(--badge-danger-color); }
