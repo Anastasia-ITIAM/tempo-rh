@@ -53,9 +53,9 @@ docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 
 | Service | URL |
 |---|---|
-| Application | http://localhost:8088 |
-| phpMyAdmin | http://localhost:8089 |
-| Mailpit (emails) | http://localhost:8029 |
+| Application | http://localhost:8090 |
+| phpMyAdmin | http://localhost:8091 |
+| Mailpit (emails) | http://localhost:8030 |
 
 ### Comptes de démo (fixtures)
 
