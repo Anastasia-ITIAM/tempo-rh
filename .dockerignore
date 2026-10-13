@@ -1,7 +1,9 @@
 .git
+.idea
 vendor
+var
 node_modules
-storage/logs
-storage/framework/cache
+public/assets
 *.log
-.env
+.env.local
+.env.*.local
