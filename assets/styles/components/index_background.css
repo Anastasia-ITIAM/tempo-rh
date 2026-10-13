@@ -74,3 +74,11 @@
         margin-bottom: 1.5rem;
     }
 }
+
+/* Bootstrap's invalid icon overlaps the show/hide password button */
+.password-wrapper .form-control.is-invalid,
+.password-wrapper .form-control.is-valid,
+.password-wrapper input:invalid {
+    background-image: none;
+    padding-right: 48px;
+}
