@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\Admin\AppSettingCrudController;
 use App\Controller\Admin\ExpenseReport\ExpenseReportCrudController;
 use App\Controller\Admin\LeaveRequest\LeaveRequestCrudController;
 use App\Controller\Admin\TimeSheet\EasyAdminController\ClientCrudController;
@@ -12,11 +13,11 @@ use App\Controller\Common\MyProfileCrudController;
 use App\Controller\User\ExpenseReport\UserExpenseReportCrudController;
 use App\Controller\User\LeaveRequest\UserLeaveRequestCrudController;
 use App\Service\Admin\LeaveRequest\LeaveTypeRenewalService;
+use App\Service\Branding\BrandingService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use Symfony\Component\AssetMapper\AssetMapperInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -25,7 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DashboardController extends AbstractDashboardController
 {
     public function __construct(
-        private readonly AssetMapperInterface $assetMapper,
+        private readonly BrandingService $branding,
         private readonly LeaveTypeRenewalService $leaveTypeRenewalService,
     ) {
     }
@@ -50,7 +51,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureDashboard(): Dashboard
     {
-        $logoPath = $this->assetMapper->getPublicPath('images/logo.png');
+        $logoPath = $this->branding->getLogoUrl();
 
         return Dashboard::new()
             ->setTitle('
@@ -58,7 +59,7 @@ class DashboardController extends AbstractDashboardController
                         <img src="' . $logoPath . '" alt="TempoRH" height="80">
                     </div>
                 ')
-            ->setFaviconPath('logo.png');
+            ->setFaviconPath($logoPath);
     }
 
     public function configureMenuItems(): iterable
@@ -81,11 +82,13 @@ class DashboardController extends AbstractDashboardController
             MenuItem::linkTo(ProjectCrudController::class, 'Projets', 'fa fa-folder')->setAction('index')->setPermission('ROLE_ADMIN'),
             MenuItem::linkTo(TaskCrudController::class, 'Tâches', 'fa fa-tasks')->setAction('index')->setPermission('ROLE_ADMIN'),
         ]);
-        yield MenuItem::linkToUrl('Mes Timesheets', 'fa fa-clock', '/timesheet/user/timesheet')
-            ->setPermission('ROLE_USER');
+        yield MenuItem::linkToUrl('Mes Timesheets', 'fa fa-clock', '/timesheet/user/timesheet');
 
 
 
+
+        yield MenuItem::section('Paramètres')->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkTo(AppSettingCrudController::class, 'Personnalisation', 'fa fa-palette')->setPermission('ROLE_ADMIN');
 
         yield MenuItem::section('Mon compte');
         yield MenuItem::linkTo(MyProfileCrudController::class, 'Mon profil', 'fa fa-id-card');

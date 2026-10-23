@@ -1,0 +1,22 @@
+{% set settings = app_settings() %}
+<style>
+    /* Couleurs choisies dans Paramètres → Personnalisation.
+       Sélecteurs renforcés pour passer devant colors.css et EasyAdmin (clair ET sombre). */
+    :root:root,
+    body,
+    body.ea-light-scheme,
+    body.ea-dark-scheme {
+        /* Nos couleurs */
+        --color-primary: {{ settings.primaryColor }};
+        --color-secondary: {{ settings.secondaryColor }};
+        --color-tertiary: {{ settings.accentColor }};
+        --color-btn-gradient: linear-gradient(135deg, {{ settings.accentColor }}, {{ settings.primaryColor }});
+        --color-btn-shadow: color-mix(in srgb, {{ settings.primaryColor }} 40%, transparent);
+
+        /* Couleurs d'EasyAdmin : menu actif, liens, boutons principaux */
+        --link-color: {{ settings.primaryColor }};
+        --link-hover-color: color-mix(in srgb, {{ settings.primaryColor }} 70%, white);
+        --button-primary-bg: {{ settings.primaryColor }};
+        --button-primary-hover-bg: color-mix(in srgb, {{ settings.primaryColor }} 85%, black);
+    }
+</style>

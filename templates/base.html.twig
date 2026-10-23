@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}TempoRH{% endblock %}</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ branding_logo_url() }}">
+    {{ include('settings/theme_colors.html.twig') }}
 
     {% block javascripts %}
         {% block importmap %}{{ importmap('app') }}{% endblock %}
