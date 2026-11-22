@@ -3,12 +3,14 @@
 namespace App\Service\Admin\LeaveRequest;
 
 use App\Entity\LeaveRequest\LeaveType;
+use App\Repository\LeaveTypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class LeaveTypeRenewalService
 {
     public function __construct(
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private LeaveTypeRepository $leaveTypeRepository,
     ) {
     }
 
@@ -19,14 +21,15 @@ readonly class LeaveTypeRenewalService
     {
         $today = new \DateTimeImmutable('today');
 
-        $leaveTypes = $this->em->getRepository(LeaveType::class)->findAll();
+        // Appelé à chaque ouverture du tableau de bord : on ne charge que les lignes à renouveler,
+        // filtrées par la base (index sur archived_at, end_date), au lieu de tous les types de congés.
+        $leaveTypes = $this->leaveTypeRepository->findExpiredToRenew($today);
+
+        if ([] === $leaveTypes) {
+            return;
+        }
 
         foreach ($leaveTypes as $leaveType) {
-
-            if ($leaveType->getArchivedAt() || $leaveType->getEndDate() > $today) {
-                continue;
-            }
-
             $leaveType->setArchivedAt(new \DateTimeImmutable());
 
             $new = new LeaveType();

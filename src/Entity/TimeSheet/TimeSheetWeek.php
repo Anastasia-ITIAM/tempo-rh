@@ -11,6 +11,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TimeSheetWeekRepository::class)]
+#[ORM\Index(name: 'idx_timesheet_week_user_start', columns: ['user_id', 'start_date'])]
+#[ORM\Index(name: 'idx_timesheet_week_status_start', columns: ['status', 'start_date'])]
 class TimeSheetWeek
 {
     #[ORM\Id]

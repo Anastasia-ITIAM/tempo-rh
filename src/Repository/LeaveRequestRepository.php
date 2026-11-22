@@ -16,10 +16,21 @@ class LeaveRequestRepository extends ServiceEntityRepository
         parent::__construct($registry, LeaveRequest::class);
     }
 
-    public function findRequestsBetween(\DateTimeInterface $start, \DateTimeInterface $end)
+    /**
+     * Congés confirmés sur la période, avec leur période, leur raison et leur demandeur
+     * chargés dans la même requête (évite une requête par congé, problème N+1).
+     *
+     * @return LeaveRequest[]
+     */
+    public function findRequestsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         return $this->createQueryBuilder('r')
             ->join('r.period', 'p')
+            ->addSelect('p')
+            ->leftJoin('r.reason', 'reason')
+            ->addSelect('reason')
+            ->join('r.requestedBy', 'u')
+            ->addSelect('u')
             ->andWhere('p.startedAt >= :start')
             ->andWhere('p.endedAt <= :end')
             ->setParameter('start', $start->format('Y-m-d'))

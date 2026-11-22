@@ -25,15 +25,18 @@ class ExportController extends AbstractController
 
         $leaveRequests = $leaveRequestRepository->findRequestsBetween($startDate, $endDate);
 
+        // Regroupe les congés par employé en un seul passage (au lieu de filtrer toute la liste pour chaque employé)
+        $requestsByUser = [];
+        foreach ($leaveRequests as $leaveRequest) {
+            $requestsByUser[$leaveRequest->getRequestedBy()->getId()][] = $leaveRequest;
+        }
+
         $results = [];
 
         foreach ($userRepository->findAll() as $user) {
             $fullName = $user->getFullName();
 
-            $userRequests = array_filter(
-                $leaveRequests,
-                fn ($lr) => $lr->getRequestedBy()?->getId() === $user->getId()
-            );
+            $userRequests = $requestsByUser[$user->getId()] ?? [];
 
             if (empty($userRequests)) {
                 $results[] = [

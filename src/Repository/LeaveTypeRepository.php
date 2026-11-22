@@ -42,4 +42,19 @@ class LeaveTypeRepository extends ServiceEntityRepository
 
         return $leaveType;
     }
+
+    /**
+     * Types de congés expirés et pas encore archivés : seules ces lignes sont à renouveler.
+     *
+     * @return LeaveType[]
+     */
+    public function findExpiredToRenew(\DateTimeImmutable $today): array
+    {
+        return $this->createQueryBuilder('lt')
+            ->andWhere('lt.archivedAt IS NULL')
+            ->andWhere('lt.endDate <= :today')
+            ->setParameter('today', $today->format('Y-m-d'))
+            ->getQuery()
+            ->getResult();
+    }
 }
