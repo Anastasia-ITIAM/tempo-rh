@@ -28,7 +28,6 @@ class LeaveBalanceController extends AbstractController
             match ($type->getCode()) {
                 LeaveTypeCode::CP => $cp = $type->getCurrentNumber(),
                 LeaveTypeCode::RTT => $rtt = $type->getCurrentNumber(),
-                default => null,
             };
         }
 

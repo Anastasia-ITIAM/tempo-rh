@@ -103,7 +103,7 @@ class UserExpenseReportCrudController extends AbstractCrudController
                     /** @var User $user */
                     $user = $this->getUser();
 
-                    return $expenseReport->getStatus() === Status::PENDING && $expenseReport->getCreatedBy() === $user?->getFullName();
+                    return $expenseReport->getStatus() === Status::PENDING && $expenseReport->getCreatedBy() === $user->getFullName();
                 }
             );
         });

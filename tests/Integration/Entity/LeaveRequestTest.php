@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 #[CoversClass(LeaveRequest::class)]
-class LeaveRequestTest extends KernelTestCase
+final class LeaveRequestTest extends KernelTestCase
 {
     protected ?AbstractDatabaseTool $databaseTool = null;
 

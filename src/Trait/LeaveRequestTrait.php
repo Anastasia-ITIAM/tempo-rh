@@ -106,7 +106,6 @@ trait LeaveRequestTrait
                     match ($leaveType->getCode()) {
                         LeaveTypeCode::CP => $remainingCP = $leaveType->getCurrentNumber(),
                         LeaveTypeCode::RTT => $remainingRTT = $leaveType->getCurrentNumber(),
-                        default => null,
                     };
                 }
             }

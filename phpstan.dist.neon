@@ -9,3 +9,14 @@ parameters:
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
     treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # Doctrine remplit lui-même les identifiants et certaines propriétés des entités :
+        # PHPStan ne le voit pas sans l'extension phpstan-doctrine.
+        -
+            identifier: property.unusedType
+            path: src/Entity/*
+        # Le bundle Liip n'est chargé que dans l'environnement de test, pas dans le conteneur de dev analysé.
+        -
+            message: '#Liip\\TestFixturesBundle\\Services\\DatabaseToolCollection" is not registered#'
+            path: tests/Integration/*
+

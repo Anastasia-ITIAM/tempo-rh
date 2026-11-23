@@ -67,8 +67,8 @@ class AdminTimeSheetController extends AbstractController
             'weekStart' => $startDate,
             'weekEnd' => $endDate,
             'weekDays' => $weekDays,
-            'groupedRows' => $timesheetWeek->getGroupedRows() ?? [],
-            'dailyTotals' => $timesheetWeek->getDailyTotals() ?? [],
+            'groupedRows' => $timesheetWeek->getGroupedRows(),
+            'dailyTotals' => $timesheetWeek->getDailyTotals(),
             'clients' => $clientRepo->findAll(),
         ]);
     }

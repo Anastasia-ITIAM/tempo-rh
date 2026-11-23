@@ -89,7 +89,7 @@ trait ExpenseReportTrait
             ->onlyWhenCreating()
             ->setLabel(false)
             ->setRequired(true)
-            ->setFormat('short', 'none')
+            ->setFormat('short')
             ->formatValue(function ($value) {
                 return $value?->format('d/m/y');
             });
@@ -112,7 +112,7 @@ trait ExpenseReportTrait
 
         yield DateField::new('refundedAt', 'Date de remboursement')
             ->onlyOnIndex()
-            ->setFormat('short', 'none')
+            ->setFormat('short')
             ->setFormTypeOption('data', new \DateTimeImmutable())
             ->formatValue(function ($value) {
                 return $value?->format('d/m/y');
@@ -168,7 +168,7 @@ trait ExpenseReportTrait
 
         yield DateTimeField::new('createdAt', 'Créé le')
             ->onlyOnIndex()
-            ->setFormat('short', 'none')
+            ->setFormat('short')
             ->formatValue(function ($value) {
                 return $value?->format('d/m/y');
             });

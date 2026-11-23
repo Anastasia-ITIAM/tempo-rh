@@ -129,7 +129,7 @@ class LeaveRequestCrudController extends AbstractCrudController
                         /** @var User $user */
                         $user = $this->getUser();
 
-                        return $leaveRequest->getStatus() === Status::PENDING && $leaveRequest->getCreatedBy() === $user?->getFullName();
+                        return $leaveRequest->getStatus() === Status::PENDING && $leaveRequest->getCreatedBy() === $user->getFullName();
                     }
                 );
         });

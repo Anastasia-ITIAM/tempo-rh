@@ -16,7 +16,8 @@ readonly class BrandingService
 
     public function __construct(
         private AppSettingRepository $repository,
-        #[Autowire('%kernel.project_dir%')] private string $projectDir,
+        #[Autowire('%kernel.project_dir%')]
+        private string $projectDir,
     ) {
     }
 
@@ -29,15 +30,15 @@ readonly class BrandingService
     {
         $filename = $this->getSettings()->getLogoFilename();
 
-        if (null === $filename || !is_file($this->projectDir.'/public/'.self::LOGO_DIRECTORY.'/'.$filename)) {
+        if (null === $filename || !is_file($this->projectDir . '/public/' . self::LOGO_DIRECTORY . '/' . $filename)) {
             return self::DEFAULT_LOGO_URL;
         }
 
-        return '/'.self::LOGO_DIRECTORY.'/'.$filename;
+        return '/' . self::LOGO_DIRECTORY . '/' . $filename;
     }
 
     public function getAbsoluteLogoDirectory(): string
     {
-        return $this->projectDir.'/public/'.self::LOGO_DIRECTORY;
+        return $this->projectDir . '/public/' . self::LOGO_DIRECTORY;
     }
 }

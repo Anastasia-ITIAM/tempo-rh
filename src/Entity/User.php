@@ -60,7 +60,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $leaveRequest;
 
     /**
-     * @var Collection<int, ExpenseReport\>
+     * @var Collection<int, ExpenseReport>
      */
     #[ORM\OneToMany(targetEntity: ExpenseReport::class, mappedBy: 'requestedBy')]
     private Collection $expenseReport;

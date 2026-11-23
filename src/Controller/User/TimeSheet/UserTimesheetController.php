@@ -76,8 +76,8 @@ class UserTimesheetController extends AbstractController
             'weekStart' => $startDate,
             'weekEnd' => $endDate,
             'weekDays' => $weekDays,
-            'groupedRows' => $timesheetWeek->getGroupedRows() ?? [],
-            'dailyTotals' => $timesheetWeek->getDailyTotals() ?? [],
+            'groupedRows' => $timesheetWeek->getGroupedRows(),
+            'dailyTotals' => $timesheetWeek->getDailyTotals(),
             'clients' => $clients,
             'rejectionReason' => $timesheetWeek->getComment(),
         ]);

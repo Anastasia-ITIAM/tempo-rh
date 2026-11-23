@@ -3,13 +3,11 @@
 namespace App\Controller\User\LeaveRequest;
 
 use App\Entity\LeaveRequest\LeaveRequest;
-use App\Entity\LeaveRequest\LeaveType;
 use App\Entity\User;
 use App\Enum\LeaveRequest\Status;
 use App\Enum\Notification\NotificationFlag;
 use App\Form\LeaveRequest\CommentType;
 use App\Repository\UserRepository;
-use App\Service\Admin\LeaveRequest\LeaveTypeRenewalService;
 use App\Service\Admin\Notification\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -89,31 +87,6 @@ final class CancellationRequestedController extends AbstractController
         return $this->render('form/admin/common/comment.html.twig', [
             'form' => $form->createView(),
             'backUrl' => $backUrl,
-        ]);
-    }
-
-    #[Route('/test/renew/{id}')]
-    public function test(
-        LeaveType $leaveType,
-        LeaveTypeRenewalService $service,
-        EntityManagerInterface $em
-    ) {
-        dump('BEFORE', [
-            'end' => $leaveType->getEndDate(),
-            'archived' => $leaveType->getArchivedAt(),
-        ]);
-
-        $new = $service->renewIfExpired($leaveType);
-
-        if ($new !== $leaveType) {
-            $em->persist($new);
-        }
-
-        $em->flush();
-
-        dd('AFTER', [
-            'end' => $leaveType->getEndDate(),
-            'archived' => $leaveType->getArchivedAt(),
         ]);
     }
 }

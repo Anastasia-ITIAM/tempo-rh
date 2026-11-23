@@ -233,6 +233,7 @@ class TimeSheetWeek
 
     public function getGroupedRows(): array
     {
+        /** @var array<string, array{client: ?Client, project: ?Project, task: ?Task, entriesByDate: array<string, TimeSheetEntry>, total: float}> $grouped */
         $grouped = [];
 
         foreach ($this->timeSheetEntries as $entry) {
@@ -244,13 +245,13 @@ class TimeSheetWeek
                     'project' => $entry->getProject(),
                     'task' => $entry->getTask(),
                     'entriesByDate' => [],
-                    'total' => 0,
+                    'total' => 0.0,
                 ];
             }
 
             $dateKey = $entry->getDate()->format('Y-m-d');
             $grouped[$key]['entriesByDate'][$dateKey] = $entry;
-            $grouped[$key]['total'] += $entry->getHours();
+            $grouped[$key]['total'] += (float) $entry->getHours();
         }
 
         return array_values($grouped);

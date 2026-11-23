@@ -127,7 +127,7 @@ class UserLeaveRequestCrudController extends AbstractCrudController
                 ->setCssClass('action-delete')
                 ->displayIf(
                     fn (LeaveRequest $leaveRequest) => $leaveRequest->getStatus() === Status::PENDING
-                        && $leaveRequest->getCreatedBy() === $this->security->getUser()?->getFullName()
+                        && $this->isCreatedByCurrentUser($leaveRequest)
                 );
         });
 
@@ -136,7 +136,7 @@ class UserLeaveRequestCrudController extends AbstractCrudController
                 ->setCssClass('action-delete')
                 ->displayIf(
                     fn (LeaveRequest $leaveRequest) => $leaveRequest->getStatus() === Status::PENDING
-                        && $leaveRequest->getCreatedBy() === $this->security->getUser()?->getFullName()
+                        && $this->isCreatedByCurrentUser($leaveRequest)
                 );
         });
         $cancellation_requested = Action::new('cancellation_requested', "Demander l'annulation")
@@ -231,5 +231,12 @@ class UserLeaveRequestCrudController extends AbstractCrudController
         /** @var LeaveRequest $entityInstance */
         $this->leaveRequestBalanceService->restore($entityInstance);
         parent::deleteEntity($entityManager, $entityInstance);
+    }
+
+    private function isCreatedByCurrentUser(LeaveRequest $leaveRequest): bool
+    {
+        $user = $this->security->getUser();
+
+        return $user instanceof User && $leaveRequest->getCreatedBy() === $user->getFullName();
     }
 }

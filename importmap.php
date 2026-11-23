@@ -67,11 +67,11 @@ return [
         'type' => 'css',
         'entrypoint' => true,
     ],
-        'user_timesheet_css' => [
-            'path' => './assets/timesheet/css/user/user_timesheet.css',
-            'type' => 'css',
-            'entrypoint' => true,
-        ],
+    'user_timesheet_css' => [
+        'path' => './assets/timesheet/css/user/user_timesheet.css',
+        'type' => 'css',
+        'entrypoint' => true,
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],

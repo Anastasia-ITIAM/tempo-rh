@@ -30,7 +30,7 @@ trait CustomTimestampable
             $newDate = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
             $this->createdAt = $newDate;
         }
-        $this->updatedAt = $this->getCreatedAt();
+        $this->updatedAt = $this->createdAt;
 
         return $this;
     }

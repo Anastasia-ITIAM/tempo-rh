@@ -31,7 +31,7 @@ readonly class ProfileService
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $fullName = $user?->getFullName();
+        $fullName = $user->getFullName();
 
         if ($isNew) {
             $entityInstance->setCreatedBy($fullName);
