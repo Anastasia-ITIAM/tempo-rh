@@ -227,7 +227,7 @@ class UserLeaveRequestCrudController extends AbstractCrudController
     {
         /** @var LeaveRequest $entityInstance */
         if ($entityInstance->getStatus() !== Status::PENDING
-            || $entityInstance->getCreatedBy() !== $this->security->getUser()?->getFullName()) {
+            || !$this->isCreatedByCurrentUser($entityInstance)) {
             throw new AccessDeniedException('Cette demande ne peut plus être supprimée.');
         }
 

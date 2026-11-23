@@ -246,7 +246,7 @@ class ApiUserTimeSheetController extends AbstractController
         $previousStart = new \DateTime($weekStart)->modify('-7 days')->format('Y-m-d');
         $previousWeek = $this->weekRepo->findCurrentWeekForUser($user, $previousStart);
 
-        if (!$previousWeek || count($previousWeek->getGroupedRows() ?? []) === 0) {
+        if (!$previousWeek || count($previousWeek->getGroupedRows()) === 0) {
             return $this->json(['error' => 'Aucun projet la semaine précédente'], 404);
         }
 

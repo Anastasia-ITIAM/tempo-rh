@@ -73,7 +73,7 @@ class UserTimesheetController extends AbstractController
 
         $previousStart = (clone $startDate)->modify('-7 days')->format('Y-m-d');
         $previousWeek = $repo->findCurrentWeekForUser($user, $previousStart);
-        $hasPreviousProjects = $previousWeek && count($previousWeek->getGroupedRows() ?? []) > 0;
+        $hasPreviousProjects = $previousWeek && count($previousWeek->getGroupedRows()) > 0;
 
 
         return $this->render('timesheet/user/user_timesheet.html.twig', [

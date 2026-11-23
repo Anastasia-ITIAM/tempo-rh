@@ -156,7 +156,7 @@ class UserExpenseReportCrudController extends AbstractCrudController
     {
         /** @var ExpenseReport $entityInstance */
         if ($entityInstance->getStatus() !== Status::PENDING
-            || $entityInstance->getCreatedBy() !== $this->security->getUser()?->getFullName()) {
+            || !$this->isCreatedByCurrentUser($entityInstance)) {
             throw new AccessDeniedException('Cette note de frais ne peut plus être supprimée.');
         }
 
@@ -189,5 +189,12 @@ class UserExpenseReportCrudController extends AbstractCrudController
         }
 
         $entityInstance->setRequestedBy($user);
+    }
+
+    private function isCreatedByCurrentUser(ExpenseReport $expenseReport): bool
+    {
+        $user = $this->security->getUser();
+
+        return $user instanceof User && $expenseReport->getCreatedBy() === $user->getFullName();
     }
 }

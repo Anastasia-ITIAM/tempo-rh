@@ -102,7 +102,6 @@ class TimeSheetWeek
         return $this->status;
     }
 
-
     public function isEditable(): bool
     {
         return \in_array($this->status, [Status::DRAFT, Status::REJECTED], true);
