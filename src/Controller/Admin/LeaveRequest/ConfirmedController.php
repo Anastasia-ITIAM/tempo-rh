@@ -7,7 +7,6 @@ use App\Entity\User;
 use App\Enum\LeaveRequest\Status;
 use App\Enum\Notification\NotificationFlag;
 use App\Form\LeaveRequest\CommentType;
-use App\Repository\UserRepository;
 use App\Service\Admin\Notification\NotificationService;
 use Doctrine\ORM\EntityManagerInterface as ORMEntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,13 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ADMIN')]
 #[Route('/')]
 final class ConfirmedController extends AbstractController
 {
     public function __construct(
         private readonly ORMEntityManagerInterface $em,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly RouterInterface $router,
     ) {
@@ -30,6 +30,11 @@ final class ConfirmedController extends AbstractController
     #[Route('/confirmed/{id}', name: 'confirmed')]
     public function confirmed(LeaveRequest $leaveRequest, Request $request): Response
     {
+        if ($leaveRequest->getStatus() !== Status::PENDING) {
+            $this->addFlash('warning', 'Cette demande n\'est plus en attente.');
+
+            return $this->redirectToRoute('admin_leave_request_index');
+        }
 
         $form = $this->createForm(CommentType::class);
 
@@ -50,15 +55,10 @@ final class ConfirmedController extends AbstractController
 
             $this->em->flush();
 
-            $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-            foreach ($admins as $admin) {
-                $this->notificationService->sendNotification(
-                    $admin->getEmail(),
-                    NotificationFlag::LeaveRequestConfirmedToAdmin,
-                    ['employee' => $leaveRequest->getRequestedBy()->getFullName()]
-                );
-            }
+            $this->notificationService->notifyAdmins(
+                NotificationFlag::LeaveRequestConfirmedToAdmin,
+                ['employee' => $leaveRequest->getRequestedBy()->getFullName()]
+            );
 
             $this->notificationService->sendNotification(
                 $leaveRequest->getRequestedBy()->getEmail(),

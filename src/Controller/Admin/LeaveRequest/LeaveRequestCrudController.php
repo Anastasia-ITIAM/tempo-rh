@@ -6,7 +6,6 @@ use App\Entity\LeaveRequest\LeaveRequest;
 use App\Entity\User;
 use App\Enum\LeaveRequest\Status;
 use App\Enum\Notification\NotificationFlag;
-use App\Repository\UserRepository;
 use App\Service\Admin\LeaveRequest\BlamableService;
 use App\Service\Admin\LeaveRequest\LeaveRequestBalanceCheckerService;
 use App\Service\Admin\LeaveRequest\LeaveRequestBalanceService;
@@ -24,7 +23,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ADMIN')]
 class LeaveRequestCrudController extends AbstractCrudController
 {
     use LeaveRequestTrait;
@@ -36,7 +37,6 @@ class LeaveRequestCrudController extends AbstractCrudController
 
     public function __construct(
         private readonly Security $security,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly LeaveRequestBalanceCheckerService $leaveRequestBalanceCheckerService,
         private readonly LeaveRequestBalanceService $leaveRequestBalanceService,
@@ -61,7 +61,8 @@ class LeaveRequestCrudController extends AbstractCrudController
     public function configureAssets(Assets $assets): Assets
     {
         return $assets
-            ->addAssetMapperEntry('app');
+            ->addAssetMapperEntry('app')
+            ->addAssetMapperEntry('admin_leave_balance');
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -196,15 +197,10 @@ class LeaveRequestCrudController extends AbstractCrudController
 
         parent::persistEntity($entityManager, $entityInstance);
 
-        $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-        foreach ($admins as $admin) {
-            $this->notificationService->sendNotification(
-                $admin->getEmail(),
-                NotificationFlag::LeaveRequestCreatedByAdminToAdmin,
-                ['employee' => $entityInstance->getRequestedBy()->getFullName()]
-            );
-        }
+        $this->notificationService->notifyAdmins(
+            NotificationFlag::LeaveRequestCreatedByAdminToAdmin,
+            ['employee' => $entityInstance->getRequestedBy()->getFullName()]
+        );
 
         $this->notificationService->sendNotification(
             $entityInstance->getRequestedBy()->getEmail(),

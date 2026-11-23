@@ -6,7 +6,7 @@ use App\Entity\LeaveRequest\LeaveRequest;
 use App\Entity\User;
 use App\Enum\LeaveRequest\Status;
 use App\Enum\Notification\NotificationFlag;
-use App\Repository\UserRepository;
+use App\Security\Voter\OwnerVoter;
 use App\Service\Admin\LeaveRequest\BlamableService;
 use App\Service\Admin\LeaveRequest\LeaveRequestBalanceCheckerService;
 use App\Service\Admin\LeaveRequest\LeaveRequestBalanceService;
@@ -29,6 +29,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UserLeaveRequestCrudController extends AbstractCrudController
 {
@@ -41,7 +42,6 @@ class UserLeaveRequestCrudController extends AbstractCrudController
 
     public function __construct(
         private readonly Security $security,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly LeaveRequestBalanceCheckerService $leaveRequestBalanceCheckerService,
         private readonly LeaveRequestBalanceService $leaveRequestBalanceService,
@@ -96,6 +96,7 @@ class UserLeaveRequestCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX, 'Mes demandes de congés')
             ->setPageTitle(Crud::PAGE_NEW, 'Créer une demande')
             ->setPageTitle(Crud::PAGE_DETAIL, 'Details de ma demande')
+            ->setEntityPermission(OwnerVoter::OWNER)
             ->showEntityActionsInlined()
             ->addFormTheme('form/admin/common/period.html.twig')
             ->setDefaultSort([
@@ -171,7 +172,8 @@ class UserLeaveRequestCrudController extends AbstractCrudController
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER)
             ->remove(Crud::PAGE_DETAIL, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::DELETE);
+            ->remove(Crud::PAGE_INDEX, Action::DELETE)
+            ->disable(Action::EDIT);
     }
 
     /**
@@ -205,15 +207,10 @@ class UserLeaveRequestCrudController extends AbstractCrudController
         parent::persistEntity($entityManager, $entityInstance);
 
 
-        $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-        foreach ($admins as $admin) {
-            $this->notificationService->sendNotification(
-                $admin->getEmail(),
-                NotificationFlag::LeaveRequestCreatedByUserToAdmin,
-                ['employee' => $entityInstance->getRequestedBy()->getFullName()]
-            );
-        }
+        $this->notificationService->notifyAdmins(
+            NotificationFlag::LeaveRequestCreatedByUserToAdmin,
+            ['employee' => $entityInstance->getRequestedBy()->getFullName()]
+        );
 
         $this->notificationService->sendNotification(
             $entityInstance->getRequestedBy()->getEmail(),
@@ -229,6 +226,11 @@ class UserLeaveRequestCrudController extends AbstractCrudController
     public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         /** @var LeaveRequest $entityInstance */
+        if ($entityInstance->getStatus() !== Status::PENDING
+            || $entityInstance->getCreatedBy() !== $this->security->getUser()?->getFullName()) {
+            throw new AccessDeniedException('Cette demande ne peut plus être supprimée.');
+        }
+
         $this->leaveRequestBalanceService->restore($entityInstance);
         parent::deleteEntity($entityManager, $entityInstance);
     }

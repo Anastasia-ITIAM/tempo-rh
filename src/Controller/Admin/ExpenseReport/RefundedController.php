@@ -7,7 +7,6 @@ use App\Entity\User;
 use App\Enum\ExpenseReport\Status;
 use App\Enum\Notification\NotificationFlag;
 use App\Form\LeaveRequest\CommentDateType;
-use App\Repository\UserRepository;
 use App\Service\Admin\Notification\NotificationService;
 use Doctrine\ORM\EntityManagerInterface as ORMEntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,13 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ADMIN')]
 #[Route('/')]
 final class RefundedController extends AbstractController
 {
     public function __construct(
         private readonly ORMEntityManagerInterface $em,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly RouterInterface $router,
     ) {
@@ -30,6 +30,12 @@ final class RefundedController extends AbstractController
     #[Route('/refunded/{id}', name: 'refunded')]
     public function cancelled(ExpenseReport $expenseReport, Request $request): Response
     {
+        if ($expenseReport->getStatus() !== Status::PENDING) {
+            $this->addFlash('warning', 'Cette note de frais n\'est plus en attente.');
+
+            return $this->redirectToRoute('admin_expense_report_index');
+        }
+
         $form = $this->createForm(CommentDateType::class);
 
         $backUrl = $request->headers->get('referer')
@@ -52,15 +58,10 @@ final class RefundedController extends AbstractController
             }
             $this->em->flush();
 
-            $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-            foreach ($admins as $admin) {
-                $this->notificationService->sendNotification(
-                    $admin->getEmail(),
-                    NotificationFlag::ExpenseReportRefundedToAdmin,
-                    ['employee' => $expenseReport->getRequestedBy()->getFullName()]
-                );
-            }
+            $this->notificationService->notifyAdmins(
+                NotificationFlag::ExpenseReportRefundedToAdmin,
+                ['employee' => $expenseReport->getRequestedBy()->getFullName()]
+            );
 
             $this->notificationService->sendNotification(
                 $expenseReport->getRequestedBy()->getEmail(),

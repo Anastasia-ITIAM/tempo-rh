@@ -1,8 +1,8 @@
 {% extends '@EasyAdmin/layout.html.twig' %}
 
-  {% block head_javascript %}
-      {{ importmap(['app', 'admin_timesheet_dashboard', 'admin_dashboard_timesheet_css']) }}
-  {% endblock %}
+{% block importmap %}
+    {{ importmap(['app', 'admin_timesheet_dashboard', 'admin_dashboard_timesheet_css']) }}
+{% endblock %}
 
 {% block content_title %}Approbation des Timesheets{% endblock %}
 
@@ -81,7 +81,7 @@
                     <th>Heures</th>
                     <th>Clients</th>
                     <th>Soumise le</th>
-                    <th>Actions</th>
+                    <th class="text-center">Actions</th>
                 </tr>
                 </thead>
                 <tbody id="timesheetsBody">
@@ -104,34 +104,34 @@
 
 
     {# Modal Approuver #}
-    <div id="approveModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div id="approveModal" class="ts-modal">
+        <div class="ts-modal-content">
+            <div class="ts-modal-header">
                 <h3>Valider cette feuille ?</h3>
             </div>
-            <div class="modal-body">
+            <div class="ts-modal-body">
                 <p id="approveSummary"></p>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('approveModal')">Annuler</button>
+            <div class="ts-modal-footer">
+                <button type="button" class="btn btn-secondary ts-modal-close">Annuler</button>
                 <button class="btn btn-secondary  btn-success" id="confirmApproveBtn">Valider</button>
             </div>
         </div>
     </div>
 
     {# Modal Rejeter #}
-    <div id="rejectModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div id="rejectModal" class="ts-modal">
+        <div class="ts-modal-content">
+            <div class="ts-modal-header">
                 <h3>Rejeter cette feuille ?</h3>
             </div>
-            <div class="modal-body">
+            <div class="ts-modal-body">
                 <label for="rejectReason" class="form-label"></label>
                 <textarea id="rejectReason" class="form-control" rows="5" required
                           placeholder="Raison du rejet..."></textarea>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('rejectModal')">Annuler</button>
+            <div class="ts-modal-footer">
+                <button type="button" class="btn btn-secondary ts-modal-close">Annuler</button>
                 <button class="btn btn-secondary  btn-danger" id="confirmRejectBtn">Rejeter</button>
             </div>
         </div>

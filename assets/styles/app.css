@@ -1,7 +1,8 @@
 @import 'abstracts/colors.css';
 
-@import './components/buttons.css';
-@import './components/drop_down.css';
-@import './components/index_background.css';
-@import './components/badge_timesheet.css';
-
+@import 'components/buttons.css';
+@import 'components/drop_down.css';
+@import 'components/auth.css';
+@import 'components/card.css';
+@import 'components/timesheet/badge_timesheet.css';
+@import 'components/timesheet/flash_message_timesheet.css';

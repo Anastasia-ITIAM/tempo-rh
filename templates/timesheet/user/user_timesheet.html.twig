@@ -1,10 +1,7 @@
 {% extends '@EasyAdmin/layout.html.twig' %}
 
-{% block javascripts %}
-    {% block importmap %}
-        {{ importmap(['user_timesheet']) }}
-        {{ importmap(['app', 'user_timesheet_css']) }}
-    {% endblock %}
+{% block importmap %}
+    {{ importmap(['app', 'user_timesheet', 'user_timesheet_css']) }}
 {% endblock %}
 
 {% block content_title %}Ma feuille de temps{% endblock %}
@@ -43,10 +40,11 @@
                     <span class="badge {{ statusBadges[status].class }}">{{ statusBadges[status].label }}</span>
 
                     {% if timesheetWeek.history|length > 0 %}
-                        <button class="btn btn-secondary" id="rejectionReasonBtn">
-                            Voir historique
+                        <button type="button" class="btn btn-secondary" id="rejectionReasonBtn" title="Voir l'historique de la feuille">
+                      Historique
                         </button>
                     {% endif %}
+
                 </div>
             </div>
         </div>
@@ -113,9 +111,16 @@
                         <tr class="text-center text-muted" id="emptyRow">
                             <td colspan="{{ weekDays|length + 2 }}" class="py-4">
                                 <i class="fa fa-list fa-2x mb-2 d-block"></i>
-                                Aucune ligne pour cette semaine.
+                                <div>Aucune ligne pour cette semaine</div>
                                 {% if isEditable %}
-                                    <a href="#" id="addFirstRowBtn">Ajouter une ligne</a>
+                                    <div class="mt-2">
+                                        <a href="#" id="addFirstRowBtn">Ajouter une ligne</a>
+                                    </div>
+                                    {% if status == 'DRAFT' and hasPreviousProjects %}
+                                        <div class="mt-1">
+                                            <a href="#" id="copyPreviousWeekBtn">Copier les projets de la semaine précédente</a>
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                         </tr>
@@ -172,7 +177,7 @@
                                             </div>
                                         {% else %}
                                             {% if entry %}
-                                                {{ entry.hours|number_format(1, ',', '') }}h
+                                                {{ entry.hours|number_format(2, ',', '') }}h
                                                 {% if entry.comment %}
                                                     <button type="button" class="btn btn-sm comment-btn has-comment comment-readonly"
                                                             data-date="{{ dateKey }}"
@@ -187,7 +192,7 @@
                                         {% endif %}
                                     </td>
                                 {% endfor %}
-                                <td class="text-center fw-bold row-total">{{ row.total|number_format(1, ',', '') }}</td>
+                                <td class="text-center fw-bold row-total">{{ row.total|number_format(2, ',', '') }}</td>
                             </tr>
                         {% endfor %}
                     {% endif %}
@@ -198,7 +203,7 @@
                         {% for day in weekDays %}
                             {% set dateKey = day|date('Y-m-d') %}
                             <td class="text-center daily-total" data-date="{{ dateKey }}">
-                                {{ (dailyTotals[dateKey] ?? 0)|number_format(1, ',', '') }}
+                                {{ (dailyTotals[dateKey] ?? 0)|number_format(2, ',', '') }}
                             </td>
                         {% endfor %}
                         <td class="text-center" id="grandTotal">
@@ -206,7 +211,7 @@
                             {% for row in groupedRows %}
                                 {% set grandTotal = grandTotal + row.total %}
                             {% endfor %}
-                            {{ grandTotal|number_format(1, ',', '') }}
+                            {{ grandTotal|number_format(2, ',', '') }}
                         </td>
                     </tr>
                     </tfoot>
@@ -257,7 +262,7 @@
                 </div>
                 <div class="rejection-modal-body">
                     {% for entry in timesheetWeek.history %}
-                        <div class="history-entry">
+                        <div class="history-entry history-entry--card">
                             <div class="history-entry-header">
                                 <span class="badge {{ statusBadges[entry.status.name].class }}">{{ statusBadges[entry.status.name].label }}</span>
                                 <span class="history-entry-meta">

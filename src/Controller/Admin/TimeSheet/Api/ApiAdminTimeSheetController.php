@@ -9,10 +9,10 @@ use App\Enum\Notification\NotificationFlag;
 use App\Enum\TimeSheet\Status;
 use App\Repository\TimeSheetEntryRepository;
 use App\Repository\TimeSheetWeekRepository;
-use App\Repository\UserRepository;
 use App\Service\Admin\Notification\NotificationService;
 use App\Service\Admin\TimeSheet\ExportTimeSheetService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,8 +28,8 @@ class ApiAdminTimeSheetController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly TimeSheetWeekRepository $timesheetRepo,
         private readonly ExportTimeSheetService $exportTimeSheetService,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
+        private readonly LoggerInterface $logger,
     ) {
         $this->em->getFilters()->disable('softdeleteable');
     }
@@ -59,7 +59,7 @@ class ApiAdminTimeSheetController extends AbstractController
         } catch (\InvalidArgumentException $e) {
             return $this->json(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
-            return $this->json(['message' => 'Erreur: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->serverError($e);
         }
     }
 
@@ -96,17 +96,12 @@ class ApiAdminTimeSheetController extends AbstractController
             $this->em->persist($history);
             $this->em->flush();
 
-            $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-            foreach ($admins as $admin) {
-                $this->notificationService->sendNotification(
-                    $admin->getEmail(),
-                    NotificationFlag::TimeSheetWeekApprovedByAdminToAdmin,
-                    [
-                        'employee' => $timesheet->getUser()->getFullName(),
-                    ]
-                );
-            }
+            $this->notificationService->notifyAdmins(
+                NotificationFlag::TimeSheetWeekApprovedByAdminToAdmin,
+                [
+                    'employee' => $timesheet->getUser()->getFullName(),
+                ]
+            );
 
             $this->notificationService->sendNotification(
                 $timesheet->getUser()->getEmail(),
@@ -123,10 +118,7 @@ class ApiAdminTimeSheetController extends AbstractController
             ]);
 
         } catch (\Exception $e) {
-            return $this->json(
-                ['message' => 'Erreur: ' . $e->getMessage()],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return $this->serverError($e);
         }
     }
 
@@ -174,17 +166,12 @@ class ApiAdminTimeSheetController extends AbstractController
             $this->em->persist($history);
             $this->em->flush();
 
-            $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-            foreach ($admins as $admin) {
-                $this->notificationService->sendNotification(
-                    $admin->getEmail(),
-                    NotificationFlag::TimeSheetWeekRejectedByAdminToAdmin,
-                    [
-                        'employee' => $timesheet->getUser()->getFullName(),
-                    ]
-                );
-            }
+            $this->notificationService->notifyAdmins(
+                NotificationFlag::TimeSheetWeekRejectedByAdminToAdmin,
+                [
+                    'employee' => $timesheet->getUser()->getFullName(),
+                ]
+            );
 
             $this->notificationService->sendNotification(
                 $timesheet->getUser()->getEmail(),
@@ -202,10 +189,7 @@ class ApiAdminTimeSheetController extends AbstractController
             ]);
 
         } catch (\Exception $e) {
-            return $this->json(
-                ['message' => 'Erreur: ' . $e->getMessage()],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return $this->serverError($e);
         }
     }
 
@@ -251,7 +235,17 @@ class ApiAdminTimeSheetController extends AbstractController
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (\Exception $e) {
-            return new JsonResponse(['message' => 'Erreur: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->serverError($e);
         }
+    }
+
+    /**
+     * Erreur inattendue : le détail va dans les logs (var/log), le navigateur reçoit un message générique.
+     */
+    private function serverError(\Throwable $e): JsonResponse
+    {
+        $this->logger->error('Timesheet API (admin) : ' . $e->getMessage(), ['exception' => $e]);
+
+        return new JsonResponse(['message' => 'Une erreur est survenue, réessayez plus tard.'], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

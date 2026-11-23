@@ -13,14 +13,13 @@ use App\Repository\ProjectRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeSheetEntryRepository;
 use App\Repository\TimeSheetWeekRepository;
-use App\Repository\UserRepository;
 use App\Service\Admin\Notification\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Exception\ORMException;
-use Doctrine\ORM\OptimisticLockException;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/timesheet')]
@@ -32,17 +31,13 @@ class ApiUserTimeSheetController extends AbstractController
         private readonly TimeSheetEntryRepository $entryRepo,
         private readonly ProjectRepository $projectRepo,
         private readonly TaskRepository $taskRepo,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     // ===== CASCADE =====
 
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
     #[Route('/ajax/projects', name: 'ajax_projects')]
     public function projects(Request $request): JsonResponse
     {
@@ -64,10 +59,6 @@ class ApiUserTimeSheetController extends AbstractController
         ], $projects));
     }
 
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
     #[Route('/ajax/tasks', name: 'ajax_tasks')]
     public function tasks(Request $request): JsonResponse
     {
@@ -119,9 +110,21 @@ class ApiUserTimeSheetController extends AbstractController
                 $timesheet = $this->weekRepo->findOrCreateWeekForUser($user, $weekStart);
             }
 
+            if ($timesheet->getUser()?->getId() !== $user->getId()) {
+                return $this->json(['error' => 'Accès refusé'], 403);
+            }
+
+            if (!$timesheet->isEditable()) {
+                return $this->json(['error' => 'Cette feuille de temps ne peut plus être modifiée'], 403);
+            }
+
             $client = $this->em->find(Client::class, $clientId);
             $project = $this->em->find(Project::class, $projectId);
             $task = $this->em->find(Task::class, $taskId);
+
+            if (!$client || !$project || !$task) {
+                return $this->json(['error' => 'Client, projet ou tâche introuvable'], 400);
+            }
 
             $entry = $this->entryRepo->findOrCreateEntry($timesheet, new \DateTime($dateStr), $client, $project, $task);
 
@@ -135,11 +138,8 @@ class ApiUserTimeSheetController extends AbstractController
 
             return $this->json(['success' => true, 'id' => $entry->getId()]);
         } catch (\Exception $e) {
-            return $this->json(['error' => $e->getMessage()], 500);
-        } catch (ORMException $e) {
+            return $this->serverError($e);
         }
-
-        return $this->json(['error' => 'Erreur inconnue'], 500);
     }
 
     #[Route('/entry/row', name: 'api_entry_row_delete', methods: ['DELETE'])]
@@ -160,8 +160,16 @@ class ApiUserTimeSheetController extends AbstractController
             $project = $this->em->find(Project::class, $projectId);
             $task = $this->em->find(Task::class, $taskId);
 
-            if (!$timesheet || $timesheet->getUser()->getId() !== $user->getId()) {
+            if (!$timesheet || $timesheet->getUser()?->getId() !== $user->getId()) {
                 return $this->json(['error' => 'Accès refusé'], 403);
+            }
+
+            if (!$timesheet->isEditable()) {
+                return $this->json(['error' => 'Cette feuille de temps ne peut plus être modifiée'], 403);
+            }
+
+            if (!$client || !$project || !$task) {
+                return $this->json(['error' => 'Client, projet ou tâche introuvable'], 400);
             }
 
             $this->entryRepo->deleteRow($timesheet, $client, $project, $task);
@@ -169,11 +177,8 @@ class ApiUserTimeSheetController extends AbstractController
 
             return $this->json(['success' => true]);
         } catch (\Exception $e) {
-            return $this->json(['error' => $e->getMessage()], 500);
-        } catch (ORMException $e) {
+            return $this->serverError($e);
         }
-
-        return $this->json(['error' => 'Erreur inconnue'], 500);
     }
 
     /**
@@ -185,8 +190,12 @@ class ApiUserTimeSheetController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        if ($timesheet->getUser() !== $user) {
+        if ($timesheet->getUser()?->getId() !== $user->getId()) {
             return $this->json(['error' => 'Accès refusé'], 403);
+        }
+
+        if (!$timesheet->isEditable()) {
+            return $this->json(['error' => 'Cette feuille de temps a déjà été soumise'], 400);
         }
 
         $now = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
@@ -196,17 +205,12 @@ class ApiUserTimeSheetController extends AbstractController
         $timesheet->setSubmittedAt($now);
         $this->em->flush();
 
-        $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-        foreach ($admins as $admin) {
-            $this->notificationService->sendNotification(
-                $admin->getEmail(),
-                NotificationFlag::TimeSheetWeekSubmittedByUserToAdmin,
-                [
-                    'employee' => $timesheet->getUser()->getFullName(),
-                ]
-            );
-        }
+        $this->notificationService->notifyAdmins(
+            NotificationFlag::TimeSheetWeekSubmittedByUserToAdmin,
+            [
+                'employee' => $timesheet->getUser()->getFullName(),
+            ]
+        );
 
         $this->notificationService->sendNotification(
             $timesheet->getUser()->getEmail(),
@@ -220,5 +224,68 @@ class ApiUserTimeSheetController extends AbstractController
 
 
         return $this->json(['success' => true, 'status' => $timesheet->getStatus()->value]);
+    }
+
+    /**
+     * @throws \DateMalformedStringException
+     */
+    #[Route('/timesheet/copy-previous-week', name: 'api_timesheet_copy_previous', methods: ['POST'])]
+    public function copyPreviousWeek(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $data = json_decode($request->getContent(), true);
+        $weekStart = $data['weekStart'] ?? null;
+
+        if (!$weekStart) {
+            return $this->json(['error' => 'Semaine manquante'], 400);
+        }
+
+        $this->em->getFilters()->disable('softdeleteable');
+
+        $previousStart = new \DateTime($weekStart)->modify('-7 days')->format('Y-m-d');
+        $previousWeek = $this->weekRepo->findCurrentWeekForUser($user, $previousStart);
+
+        if (!$previousWeek || count($previousWeek->getGroupedRows() ?? []) === 0) {
+            return $this->json(['error' => 'Aucun projet la semaine précédente'], 404);
+        }
+
+        $currentWeek = $this->weekRepo->findOrCreateWeekForUser($user, $weekStart);
+
+        if ($currentWeek->getStatus() !== Status::DRAFT) {
+            return $this->json(['error' => 'La copie n\'est possible que sur une feuille en brouillon'], 403);
+        }
+
+        $monday = new \DateTime($weekStart);
+
+        foreach ($previousWeek->getGroupedRows() as $row) {
+            // On ne recopie pas un client / projet / tâche supprimé ou désactivé
+            foreach ([$row['client'], $row['project'], $row['task']] as $item) {
+                if ($item->getDeletedAt() !== null || (method_exists($item, 'isActive') && !$item->isActive())) {
+                    continue 2;
+                }
+            }
+
+            // Une ligne = au moins une entrée : on crée une entrée vide (0 h) le lundi
+            $entry = $this->entryRepo->findOrCreateEntry($currentWeek, clone $monday, $row['client'], $row['project'], $row['task']);
+            if ($entry->getId() === null) {
+                $entry->setHours('0');
+                $this->em->persist($entry);
+            }
+        }
+
+        $this->em->flush();
+
+        return $this->json(['success' => true]);
+    }
+
+    /**
+     * Erreur inattendue : le détail va dans les logs (var/log), le navigateur reçoit un message générique.
+     */
+    private function serverError(\Throwable $e): JsonResponse
+    {
+        $this->logger->error('Timesheet API (employé) : ' . $e->getMessage(), ['exception' => $e]);
+
+        return new JsonResponse(['error' => 'Une erreur est survenue, réessayez plus tard.'], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

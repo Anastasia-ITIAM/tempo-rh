@@ -6,7 +6,7 @@ use App\Entity\ExpenseReport\ExpenseReport;
 use App\Entity\User;
 use App\Enum\ExpenseReport\Status;
 use App\Enum\Notification\NotificationFlag;
-use App\Repository\UserRepository;
+use App\Security\Voter\OwnerVoter;
 use App\Service\Admin\Notification\NotificationService;
 use App\Trait\ExpenseReportTrait;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UserExpenseReportCrudController extends AbstractCrudController
 {
@@ -35,7 +36,6 @@ class UserExpenseReportCrudController extends AbstractCrudController
 
     public function __construct(
         private readonly Security $security,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
     ) {
     }
@@ -83,6 +83,7 @@ class UserExpenseReportCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX, 'Mes notes de frais')
             ->setPageTitle(Crud::PAGE_NEW, 'Créer une note de frais')
             ->setPageTitle(Crud::PAGE_DETAIL, 'Details de ma note de frais')
+            ->setEntityPermission(OwnerVoter::OWNER)
             ->showEntityActionsInlined()
             ->setDefaultSort([
                 'createdAt' => 'DESC',
@@ -117,7 +118,8 @@ class UserExpenseReportCrudController extends AbstractCrudController
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER)
             ->remove(Crud::PAGE_DETAIL, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::DELETE);
+            ->remove(Crud::PAGE_INDEX, Action::DELETE)
+            ->disable(Action::EDIT);
     }
 
     #[\Override]
@@ -134,15 +136,10 @@ class UserExpenseReportCrudController extends AbstractCrudController
 
         parent::persistEntity($entityManager, $entityInstance);
 
-        $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-        foreach ($admins as $admin) {
-            $this->notificationService->sendNotification(
-                $admin->getEmail(),
-                NotificationFlag::ExpenseReportCreatedByUserToAdmin,
-                ['employee' => $entityInstance->getRequestedBy()->getFullName()]
-            );
-        }
+        $this->notificationService->notifyAdmins(
+            NotificationFlag::ExpenseReportCreatedByUserToAdmin,
+            ['employee' => $entityInstance->getRequestedBy()->getFullName()]
+        );
 
         $this->notificationService->sendNotification(
             $entityInstance->getRequestedBy()->getEmail(),
@@ -152,6 +149,18 @@ class UserExpenseReportCrudController extends AbstractCrudController
                 'employeeName' => $entityInstance->getRequestedBy()->getFirstName(),
             ]
         );
+    }
+
+    #[\Override]
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        /** @var ExpenseReport $entityInstance */
+        if ($entityInstance->getStatus() !== Status::PENDING
+            || $entityInstance->getCreatedBy() !== $this->security->getUser()?->getFullName()) {
+            throw new AccessDeniedException('Cette note de frais ne peut plus être supprimée.');
+        }
+
+        parent::deleteEntity($entityManager, $entityInstance);
     }
 
     private function setBlamable(ExpenseReport $entityInstance, bool $isNew): void

@@ -1,0 +1,25 @@
+.login-container-check-email {
+    position: relative;
+    padding: 60px 40px;
+}
+
+.login-container-check-email h3 {
+    margin-top: 20px;
+    font-size: 1.7rem;
+}
+
+.login-container-check-email p {
+    background: var(--brand-secondary);
+    color: var(--color-white);
+    margin-bottom: 2rem;
+}
+
+.btn-link {
+    background-color: var(--brand-secondary);
+    color: var(--brand-tertiary);
+}
+
+.login-page .btn-link:hover {
+    background-color: var(--brand-secondary);
+    color: var(--color-white);
+}

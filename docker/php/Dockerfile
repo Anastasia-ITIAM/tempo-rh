@@ -41,4 +41,4 @@ COPY docker/php/php.ini /usr/local/etc/php/
 ENV COMPOSER_HOME=/var/www/.composer
 
 # Installer les dépendances Symfony
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install --no-interaction --optimize-autoloader --no-scripts

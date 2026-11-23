@@ -1,16 +1,15 @@
 .btn-primary {
     transition: transform 0.2s, box-shadow 0.2s;
-    background: var(--color-primary);
-    border: 1px solid var(--color-primary);
+    background: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
 }
 
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
-    background-color: var(--color-primary);
-    background: var(--color-primary)!important;
+    background: var(--brand-primary) !important;
     transform: translateY(-2px);
-    border: 1px solid var(--color-primary)!important;
+    border: 1px solid var(--brand-primary)!important;
     outline: none !important;
 }
 
@@ -61,22 +60,15 @@
     transform: translateY(-2px);
 }
 
-.add-row-btn:focus,
-.delete-row-btn:focus {
-    outline: none !important;
-}
-
 .comment-btn {
-    color: var(--color-grey);
+    color: var(--ts-text-muted);
     padding: 2px 6px;
     transition: color 0.2s;
-    outline: none !important;
-    box-shadow: none !important;
 }
 
 .comment-btn.has-comment,
 .comment-btn:hover {
-    color: var(--color-primary);
+    color: var(--brand-primary);
 }
 
 /*ADMIN TIMESHEET*/
@@ -84,22 +76,23 @@
 .action-buttons {
     display: flex;
     gap: 4px;
+    justify-content: flex-end;
 }
 
-.btn-icon-timesheet.view    { color: var(--color-grey); }
+.btn-icon-timesheet.view    { color: var(--ts-text-muted); }
 .btn-icon-timesheet.approve { color: var(--color-success); }
 .btn-icon-timesheet.reject  { color: var(--color-danger); }
 
 .btn-icon-timesheet {
     padding: 6px 10px;
-    border: 1px solid var(--color-border);
-    background: var(--color-bg-light);
+    border: 1px solid var(--ts-border);
+    background: var(--ts-page-bg);
     border-radius: 8px;
     font-size: 12px;
     transition: all 0.2s;
 }
 
 .btn-icon-timesheet:hover {
-    background: var(--color-bg);
-    box-shadow: 0 2px 4px var(--color-white);
+    background: var(--ts-hover-bg);
+    box-shadow: 0 2px 4px var(--ts-shadow);
 }

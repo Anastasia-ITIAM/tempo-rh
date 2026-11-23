@@ -1,0 +1,104 @@
+@import '../../components/timesheet/history.css';
+
+/* HEADER */
+.timesheet-container { padding: 20px; }
+.timesheet-header { border-bottom: 1px solid var(--ts-border); padding-bottom: 12px; }
+.timesheet-header h2 {margin: 0;color: var(--ts-text-strong);font-size: 1.2rem;}
+.week-range { font-size: 0.9rem; }
+
+/* TABLEAU */
+.table-responsive { overflow-x: auto; }
+.timesheet-grid th, .timesheet-grid td { vertical-align: middle; }
+.day-col { width: 9%; }
+
+/* Cascade Client->Project->Task */
+.breadcrumb-entry { display: inline-block; vertical-align: middle; }
+.breadcrumb-sub { padding-left: 12px; font-size: 0.85rem; }
+.breadcrumb-sub-sub { padding-left: 24px; font-size: 0.85rem; }
+
+/* Hours inputs */
+.day-cell-inner { display: flex; align-items: center; gap: 4px; justify-content: center; }
+.hours-input { width: 75px; text-align: center; font-weight: 500; }
+.timesheet-grid .hours-input:focus { border-color: var(--brand-primary); }
+.row-total, #grandTotal, .daily-total { font-variant-numeric: tabular-nums; }
+
+/* Modals */
+.comment-modal-overlay,
+.rejection-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-overlay);
+}
+
+.comment-modal-box,
+.rejection-modal-box {
+    background: var(--ts-surface);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 16px;
+    box-shadow: 0 10px 30px var(--ts-shadow);
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-modal-header,
+.rejection-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ts-border);
+}
+
+.comment-modal-body,
+.rejection-modal-body {
+    padding: 16px;
+}
+
+.comment-modal-footer,
+.rejection-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--ts-border);
+}
+
+/* Modal Commentaire */
+#commentModalTextarea:focus {
+    border-color: var(--brand-primary);
+}
+
+.comment-modal-overlay,
+.rejection-modal-overlay {
+    z-index: 1050;
+    padding: 16px 0;
+}
+
+.comment-modal-box,
+.rejection-modal-box {
+    max-height: 90vh;
+}
+
+.comment-modal-body,
+.rejection-modal-body {
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+body.ts-modal-open {
+    overflow: hidden;
+}
+
+/* En-tête et ligne Total du tableau : "table-light" de Bootstrap reste toujours clair,
+   on le fait suivre le thème clair / sombre */
+.timesheet-grid .table-light {
+    --bs-table-bg: var(--ts-page-bg);
+    --bs-table-color: var(--ts-text-strong);
+    --bs-table-border-color: var(--ts-border);
+}

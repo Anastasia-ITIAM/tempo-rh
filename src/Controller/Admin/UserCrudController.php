@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Enum\Notification\NotificationFlag;
-use App\Repository\UserRepository;
 use App\Service\Admin\Notification\NotificationService;
 use App\Service\User\ProfileService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,7 +24,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class UserCrudController extends AbstractCrudController
 {
     public function __construct(
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly ProfileService $profileService,
     ) {
@@ -136,15 +134,10 @@ class UserCrudController extends AbstractCrudController
 
         parent::persistEntity($entityManager, $entityInstance);
 
-        $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-        foreach ($admins as $admin) {
-            $this->notificationService->sendNotification(
-                $admin->getEmail(),
-                NotificationFlag::AccountCreationToAdmin,
-                ['employee' => $entityInstance->getFullName()]
-            );
-        }
+        $this->notificationService->notifyAdmins(
+            NotificationFlag::AccountCreationToAdmin,
+            ['employee' => $entityInstance->getFullName()]
+        );
 
         $this->notificationService->sendNotification(
             $entityInstance->getEmail(),

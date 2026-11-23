@@ -1,34 +1,36 @@
 /* ==================== COULEURS DE LA MARQUE ==================== */
-/* Variables simples sur :root (comme erp-tek). La personnalisation (Paramètres → Personnalisation)
-   les redéfinit via templates/settings/theme_colors.html.twig, inclus dans base.html.twig. */
 :root {
-    /* Couleurs principales (personnalisables) */
-    --color-primary: #9344A3;
-    --color-secondary: #121328;
-    --color-tertiary: #FF4495;
+    --brand-primary: #9344A3;
+    --brand-secondary: #121328;
+    --brand-tertiary: #FF4495;
 
-    --color-btn-gradient: linear-gradient(135deg, var(--color-tertiary), var(--color-primary));
-    --color-btn-shadow: color-mix(in srgb, var(--color-primary) 40%, transparent);
+    --color-btn-gradient: linear-gradient(135deg, var(--brand-tertiary), var(--brand-primary));
+    --color-btn-shadow: color-mix(in srgb, var(--brand-primary) 40%, transparent);
 
     /* Couleurs fixes */
     --color-white: #fff;
     --color-black: #000;
     --color-grey: #675e5e;
+    --color-success: #1ea471;
+    --color-danger: #dc3545;
+    --color-overlay: rgba(0, 0, 0, 0.5);
     --color-border: #d1d5db;
     --color-bg-light: #f6f7f9;
-    --color-overlay: rgba(0, 0, 0, 0.5);
-
-    /* TimeSheet */
-    --color-success-timesheet: #1ea471;
-    --color-danger-timesheet: #dc3545;
-
-    /* Texte / fond (clair par défaut) */
-    --color-text: #000000;
-    --color-bg: #ffffff;
 }
 
-/* EasyAdmin pose data-bs-theme="dark" sur <body> en mode sombre */
-[data-bs-theme="dark"] {
-    --color-text: #ffffff;
-    --color-bg: #000000;
+/* ==================== THÈME CLAIR / SOMBRE (pages timesheet) ==================== */
+:root,
+body {
+    --ts-surface: var(--content-bg, #fff);              /* fond des cartes, tableaux, modales */
+    --ts-page-bg: var(--bs-tertiary-bg, #f6f7f9);        /* fond légèrement contrasté */
+    --ts-hover-bg: var(--bs-secondary-bg, #e9ecef);      /* survol */
+    --ts-text: var(--text-color, #212529);               /* texte normal */
+    --ts-text-strong: var(--bs-emphasis-color, #000);    /* titres, montants */
+    --ts-text-muted: var(--text-muted, #675e5e);         /* texte secondaire */
+    --ts-border: var(--bs-border-color, #d1d5db);        /* bordures */
+    --ts-shadow: rgba(0, 0, 0, 0.15);                    /* ombres */
+}
+
+.ea-dark-scheme {
+    --ts-shadow: rgba(0, 0, 0, 0.6);
 }

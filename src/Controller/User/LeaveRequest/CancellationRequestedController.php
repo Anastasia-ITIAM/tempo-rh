@@ -7,7 +7,7 @@ use App\Entity\User;
 use App\Enum\LeaveRequest\Status;
 use App\Enum\Notification\NotificationFlag;
 use App\Form\LeaveRequest\CommentType;
-use App\Repository\UserRepository;
+use App\Security\Voter\OwnerVoter;
 use App\Service\Admin\Notification\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,7 +21,6 @@ final class CancellationRequestedController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly RouterInterface $router,
     ) {
@@ -30,6 +29,15 @@ final class CancellationRequestedController extends AbstractController
     #[Route('/cancellation_requested/{id}', name: 'cancellation_requested')]
     public function cancellationRequested(LeaveRequest $leaveRequest, Request $request): Response
     {
+        $this->denyAccessUnlessGranted(OwnerVoter::OWNER, $leaveRequest);
+
+        $startedAt = $leaveRequest->getPeriod()?->getStartedAt();
+        if ($leaveRequest->getStatus() !== Status::CONFIRMED || !$startedAt || $startedAt < new \DateTimeImmutable()) {
+            $this->addFlash('warning', 'Ce congé ne peut pas être annulé.');
+
+            return $this->redirectToRoute('admin_user_leave_request_index');
+        }
+
         $form = $this->createForm(CommentType::class, null, [
             'isRequired' => true,
             'help' => 'Un motif est obligatoire',
@@ -55,19 +63,14 @@ final class CancellationRequestedController extends AbstractController
 
             $this->em->flush();
 
-            $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-            foreach ($admins as $admin) {
-                $this->notificationService->sendNotification(
-                    $admin->getEmail(),
-                    NotificationFlag::LeaveRequestCancellationRequestedToAdmin,
-                    [
-                        'employee' => $leaveRequest->getRequestedBy()->getFullName(),
-                        'employeeName' => $leaveRequest->getRequestedBy()->getFirstName(),
-                        'userComment' => $leaveRequest->getCommentUser(),
-                    ]
-                );
-            }
+            $this->notificationService->notifyAdmins(
+                NotificationFlag::LeaveRequestCancellationRequestedToAdmin,
+                [
+                    'employee' => $leaveRequest->getRequestedBy()->getFullName(),
+                    'employeeName' => $leaveRequest->getRequestedBy()->getFirstName(),
+                    'userComment' => $leaveRequest->getCommentUser(),
+                ]
+            );
 
             $this->notificationService->sendNotification(
                 $leaveRequest->getRequestedBy()->getEmail(),

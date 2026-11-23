@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('IS_AUTHENTICATED_FULLY')]
+#[IsGranted('ROLE_USER')]
 #[Route('/timesheet/user')]
 class UserTimesheetController extends AbstractController
 {
@@ -71,6 +71,11 @@ class UserTimesheetController extends AbstractController
             $weekDays[] = (clone $startDate)->modify("+$i days");
         }
 
+        $previousStart = (clone $startDate)->modify('-7 days')->format('Y-m-d');
+        $previousWeek = $repo->findCurrentWeekForUser($user, $previousStart);
+        $hasPreviousProjects = $previousWeek && count($previousWeek->getGroupedRows() ?? []) > 0;
+
+
         return $this->render('timesheet/user/user_timesheet.html.twig', [
             'timesheetWeek' => $timesheetWeek,
             'weekStart' => $startDate,
@@ -80,6 +85,7 @@ class UserTimesheetController extends AbstractController
             'dailyTotals' => $timesheetWeek->getDailyTotals(),
             'clients' => $clients,
             'rejectionReason' => $timesheetWeek->getComment(),
+            'hasPreviousProjects' => $hasPreviousProjects,
         ]);
     }
 }

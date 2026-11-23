@@ -8,11 +8,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -45,6 +48,24 @@ class ProjectCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_NEW, 'Créer un projet')
             ->showEntityActionsInlined()
             ->setDefaultSort(['client.name' => 'ASC', 'name' => 'ASC']);
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        // Noms de projets distincts (plusieurs clients peuvent avoir un projet du même nom)
+        $names = array_column(
+            $this->entityManager->createQueryBuilder()
+                ->select('DISTINCT p.name')
+                ->from(Project::class, 'p')
+                ->orderBy('p.name', 'ASC')
+                ->getQuery()
+                ->getScalarResult(),
+            'name'
+        );
+
+        return $filters
+            ->add(EntityFilter::new('client', 'Client'))
+            ->add(ChoiceFilter::new('name', 'Projet')->setChoices(array_combine($names, $names)));
     }
 
     public function configureFields(string $pageName): iterable

@@ -10,6 +10,7 @@ Application web de gestion RH interne : **feuilles de temps**, **demandes de con
 
 **Espace collaborateur**
 - Saisie des feuilles de temps à la semaine (projets, tâches, heures) et soumission pour validation
+- Reprise automatique des projets de la semaine précédente dans une feuille vide
 - Demandes de congés, avec suivi du statut et demande d'annulation
 - Notes de frais avec justificatifs
 - Notifications in-app et par email à chaque changement de statut
@@ -18,8 +19,14 @@ Application web de gestion RH interne : **feuilles de temps**, **demandes de con
 **Espace administrateur**
 - Validation ou rejet des feuilles de temps, avec motif et historique des semaines
 - Traitement des congés et des notes de frais (validation, refus, remboursement)
-- Gestion des utilisateurs, clients, projets et tâches
+- Gestion des utilisateurs, clients, projets et tâches, avec filtres par client et par projet
+- Personnalisation de l'application : couleurs et logo, appliqués à toutes les pages et aux emails
 - Tableau de bord EasyAdmin
+
+**Sécurité**
+- Contrôleurs d'administration réservés au rôle `ROLE_ADMIN`
+- Vérification côté serveur du propriétaire et du statut avant chaque action (voter Symfony)
+- Détails des erreurs masqués dans les réponses de l'API et enregistrés dans les logs
 
 ## Stack technique
 
@@ -93,7 +100,9 @@ src/
 ├── Controller/   # Admin/, User/, Common/ (login, profil, mot de passe)
 ├── Entity/       # TimeSheet, LeaveRequest, ExpenseReport, User, Notification…
 ├── Enum/         # statuts métier
-├── Service/      # logique métier (validation, notifications…)
+├── Service/      # logique métier (validation, notifications, personnalisation…)
+├── Security/     # voter de contrôle du propriétaire
+├── Filter/       # filtres EasyAdmin personnalisés
 ├── Repository/
 └── Form/
 templates/        # vues Twig + emails de notification

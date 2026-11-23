@@ -1,0 +1,44 @@
+.login-container {
+    padding: 70px 40px;
+}
+
+.login-logo img {
+    max-width: 130px;
+}
+
+.login-container input,
+.login-container textarea {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border: 1px solid var(--brand-primary);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.login-container input:focus,
+.login-container textarea:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 10px var(--color-btn-shadow);
+    outline: none;
+}
+
+.forgot-password {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-login {
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.error-message {
+    opacity: 0.7;
+    color: var(--brand-tertiary);
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+    margin-bottom: 0.3rem;
+}

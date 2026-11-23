@@ -1,0 +1,97 @@
+@import '../../components/timesheet/modals_timesheet.css';
+@import '../../components/timesheet/history.css';
+
+/* Informations générales : nom + période */
+.ts-user {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--ts-border);
+}
+
+.ts-user-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ts-text-strong);
+}
+
+.ts-user-period {
+    font-size: 0.85rem;
+    color: var(--ts-text-muted);
+}
+
+/* Liste libellé / valeur */
+.ts-info-list {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    row-gap: 12px;
+    margin: 0;
+}
+
+.ts-info-list dt {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--ts-text-muted);
+}
+
+.ts-info-list dd {
+    margin: 0;
+    color: var(--ts-text-strong);
+}
+
+/*  HISTORIQUE */
+.ts-history-body {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.ts-history-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    min-height: 120px;
+    color: var(--ts-text-muted);
+    font-size: 0.9rem;
+}
+
+.ts-history-empty i {
+    font-size: 1.5rem;
+    opacity: 0.6;
+}
+
+/* TABLEAU DES HEURES */
+.table.entries-table {
+    --bs-table-bg: var(--ts-surface);
+    --bs-table-striped-bg: var(--ts-surface);
+    --bs-table-accent-bg: var(--ts-surface);
+}
+
+.week-total-bar {
+    background: var(--ts-surface);
+    color: var(--ts-text-strong);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.table .week-total-footer {
+    background-color: var(--ts-page-bg);
+    color: var(--ts-text-strong);
+    text-align: center;
+    padding: 8px 10px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* ACTIONS EN BAS DE PAGE */
+.ts-bottom-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 0 32px;
+}

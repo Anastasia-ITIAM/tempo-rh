@@ -7,7 +7,6 @@ use App\Entity\User;
 use App\Enum\LeaveRequest\Status;
 use App\Enum\Notification\NotificationFlag;
 use App\Form\LeaveRequest\CommentType;
-use App\Repository\UserRepository;
 use App\Service\Admin\LeaveRequest\LeaveRequestBalanceService;
 use App\Service\Admin\Notification\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,13 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/leave-request')]
 final class CancelledController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly RouterInterface $router,
         private readonly LeaveRequestBalanceService $leaveRequestBalanceService,
@@ -32,6 +32,12 @@ final class CancelledController extends AbstractController
     #[Route('/cancel/{id}', name: 'admin_leave_request_cancel')]
     public function cancel(LeaveRequest $leaveRequest, Request $request): Response
     {
+        if ($leaveRequest->getStatus() !== Status::CANCELLATION_REQUESTED) {
+            $this->addFlash('warning', 'Aucune annulation n\'a été demandée pour ce congé.');
+
+            return $this->redirectToRoute('admin_leave_request_index');
+        }
+
         $form = $this->createForm(CommentType::class, null, [
             'type' => 'danger',
             'context' => 'canceled',
@@ -55,15 +61,10 @@ final class CancelledController extends AbstractController
             $this->leaveRequestBalanceService->restore($leaveRequest);
             $this->em->flush();
 
-            $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-            foreach ($admins as $admin) {
-                $this->notificationService->sendNotification(
-                    $admin->getEmail(),
-                    NotificationFlag::LeaveRequestCancelledToAdmin,
-                    ['employee' => $leaveRequest->getRequestedBy()->getFullName()]
-                );
-            }
+            $this->notificationService->notifyAdmins(
+                NotificationFlag::LeaveRequestCancelledToAdmin,
+                ['employee' => $leaveRequest->getRequestedBy()->getFullName()]
+            );
 
             $this->notificationService->sendNotification(
                 $leaveRequest->getRequestedBy()->getEmail(),

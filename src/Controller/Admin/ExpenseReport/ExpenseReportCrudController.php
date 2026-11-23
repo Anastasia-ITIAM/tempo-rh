@@ -6,7 +6,6 @@ use App\Entity\ExpenseReport\ExpenseReport;
 use App\Entity\User;
 use App\Enum\ExpenseReport\Status;
 use App\Enum\Notification\NotificationFlag;
-use App\Repository\UserRepository;
 use App\Service\Admin\Notification\NotificationService;
 use App\Trait\ExpenseReportTrait;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +19,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_ADMIN')]
 class ExpenseReportCrudController extends AbstractCrudController
 {
     use ExpenseReportTrait;
@@ -31,7 +32,6 @@ class ExpenseReportCrudController extends AbstractCrudController
     }
 
     public function __construct(
-        private readonly UserRepository $userRepository,
         private readonly NotificationService $notificationService,
         private readonly Security $security,
     ) {
@@ -142,15 +142,10 @@ class ExpenseReportCrudController extends AbstractCrudController
 
         parent::persistEntity($entityManager, $entityInstance);
 
-        $admins = $this->userRepository->findByRole('ROLE_ADMIN');
-
-        foreach ($admins as $admin) {
-            $this->notificationService->sendNotification(
-                $admin->getEmail(),
-                NotificationFlag::ExpenseReportCreatedByAdminToAdmin,
-                ['employee' => $entityInstance->getRequestedBy()->getFullName()]
-            );
-        }
+        $this->notificationService->notifyAdmins(
+            NotificationFlag::ExpenseReportCreatedByAdminToAdmin,
+            ['employee' => $entityInstance->getRequestedBy()->getFullName()]
+        );
 
         $this->notificationService->sendNotification(
             $entityInstance->getRequestedBy()->getEmail(),
